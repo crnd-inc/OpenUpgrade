@@ -48,8 +48,8 @@ product      / product.template         / sequence (integer)            : NEW
 product      / product.template         / standard_price (float)        : now a function
 product      / product.template         / state (selection)             : selection_keys is now '['draft', 'end', 'obsolete', 'sellable']' ('['', 'draft', 'end', 'obsolete', 'sellable']')
 product      / product.template         / type (selection)              : selection_keys is now 'function' ('['consu', 'service']')
-product      / product.template         / uos_coeff (float)             : module is now 'product_uos' ('product')
-product      / product.template         / uos_id (many2one)             : module is now 'product_uos' ('product')
+product      / product.template         / uos_coeff (float)             : DEL 
+product      / product.template         / uos_id (many2one)             : DEL relation: product.uom
 product      / product.template         / volume (float)                : now a function
 product      / product.template         / weight (float)                : now a function
 product      / product.template         / weight_net (float)            : DEL 
