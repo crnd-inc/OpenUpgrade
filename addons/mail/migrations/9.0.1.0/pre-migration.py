@@ -7,30 +7,8 @@ from openupgradelib import openupgrade
 import logging
 logger = logging.getLogger('OpenUpgrade.stock')
 
-
-def create_res_user_fields(cr):
-    """ This function reduce creation time of the stock_move fields
-       This part of the function (pre) just create the field and let
-       the other function in post script fill the value, because orm is needed
-    """
-    logger.info("Fast creation of the field res_users.chatter_needaction_auto "
-                "(pre)")
-
-    cr.execute("""
-        ALTER TABLE res_users
-        ADD COLUMN "chatter_needaction_auto" BOOLEAN DEFAULT FALSE""")
-
-
 @openupgrade.migrate()
 def migrate(cr, version):
-
-    # # if email_template is installed, uninstall it
-    # cr.execute(
-    #     "update ir_module_module set state='to remove' "
-    #     "where name='email_template' "
-    #     "and state in ('installed', 'to install', 'to upgrade')")
-
-    create_res_user_fields(cr)
 
 
     openupgrade.logged_query(cr, """
@@ -38,4 +16,5 @@ def migrate(cr, version):
         USING ir_model_data d
         WHERE v.id=d.res_id
         AND d.module = 'email_template'
+        AND d.model = 'ir.ui.view'
         """)
