@@ -44,8 +44,6 @@ def _get_cursor():
     with registry().cursor() as cr:
         yield cr
 
-
-
 EMPTY_DICT = frozendict()
 
 _logger = logging.getLogger(__name__)
