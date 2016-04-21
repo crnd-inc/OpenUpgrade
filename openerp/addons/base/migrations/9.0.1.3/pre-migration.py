@@ -21,6 +21,8 @@
 ##############################################################################
 
 from openupgradelib import openupgrade
+import logging
+logger = logging.getLogger('OpenUpgrade.stock')
 
 
 column_copies = {
@@ -42,16 +44,26 @@ column_copies = {
     'ir_act_server': [
         ('help', None, None),
     ],
-    'ir_ui_view': [
-        ('arch', 'arch_db', None),
-    ],
+
 }
 
 column_renames = {
     'res_partner_bank': [
         ('bank', 'bank_id'),
     ],
+    'ir_ui_view': [
+        ('arch', 'arch_db'),
+    ],
 }
+
+def create_res_group_fields(cr):
+
+    logger.info("Fast creation of the field res_groups.color "
+                "(pre)")
+
+    cr.execute("""
+        ALTER TABLE res_groups
+        ADD COLUMN "color" INTEGER""")
 
 
 @openupgrade.migrate()
