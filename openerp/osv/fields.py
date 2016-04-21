@@ -26,7 +26,7 @@ import re
 import xmlrpclib
 from operator import itemgetter
 from contextlib import contextmanager
-from psycopg2 import Binary
+from psycopg2 import Binary, OperationalError
 
 import openerp
 import openerp.tools as tools
@@ -35,11 +35,16 @@ from openerp.tools import float_repr, float_round, frozendict, html_sanitize
 import json
 from openerp import SUPERUSER_ID, registry
 
+# OpenUpgrade
+migration_cursor = False
+
 @contextmanager
 def _get_cursor():
     # yield a valid cursor from any environment or create a new one if none found
     with registry().cursor() as cr:
         yield cr
+
+
 
 EMPTY_DICT = frozendict()
 
@@ -378,6 +383,14 @@ class float(_column):
     @property
     def digits(self):
         if self._digits_compute:
+            # OpenUpgrade: try to reuse the migration cursor, to prevent
+            # transaction locks
+            if migration_cursor:
+                try:
+                    migration_cursor.execute('SELECT 1')
+                    return self._digits_compute(migration_cursor)
+                except OperationalError:
+                    pass
             with _get_cursor() as cr:
                 return self._digits_compute(cr)
         else:
@@ -1346,6 +1359,14 @@ class function(_column):
     @property
     def digits(self):
         if self._digits_compute:
+            # OpenUpgrade: try to reuse the migration cursor, to prevent
+            # transaction locks
+            if migration_cursor:
+                try:
+                    migration_cursor.execute('SELECT 1')
+                    return self._digits_compute(migration_cursor)
+                except OperationalError:
+                    pass
             with _get_cursor() as cr:
                 return self._digits_compute(cr)
         else:
