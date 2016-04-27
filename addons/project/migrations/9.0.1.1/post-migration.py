@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenUpgrade module for Odoo
-#    @copyright 2014-Today: Odoo Community Association
+#    @copyright 2014-Today: Odoo Community Association, Microcom
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -30,6 +30,27 @@ column_copies = {
     ],
 }
 
+def drop_null(cr):
+    openupgrade.logged_query(cr, """
+        ALTER TABLE account_analytic_line
+        ALTER COLUMN amount DROP NOT NULL
+        """)
+
+def create_task_id(cr):
+    openupgrade.logged_query(cr, """
+        ALTER TABLE account_analytic_line
+        ADD task_id integer
+        """)
+
+def assign_task_work(cr):
+    openupgrade.logged_query(cr, """
+        INSERT INTO account_analytic_line
+        (name, date, unit_amount, user_id, task_id, amount, account_id)
+        SELECT name, date, hours, user_id, task_id, '0.0',
+        (SELECT p.analytic_account_id from project_project p join
+        project_task t on p.id = t.project_id where t.id = task_id)
+        FROM project_task_work
+        """)
 
 def map_priority(cr):
     openupgrade.map_values(
@@ -39,7 +60,6 @@ def map_priority(cr):
         [('2', '1')],
         table='project_task', write='sql')
 
-
 def map_template_state(cr):
     openupgrade.map_values(
         cr,
@@ -48,47 +68,22 @@ def map_template_state(cr):
         [('template', 'draft')],
         table='project_project', write='sql')
 
-def migrate_stock_warehouse(cr, pool):
-    """Enable manufacturing on all warehouses. This will trigger the creation
-    of the manufacture procurement rule"""
-    warehouse_obj = pool['account.analytic.account']
-    warehouse_ids = warehouse_obj.search(cr, SUPERUSER_ID, [])
-    print "post-migration &&&&&&&&&&&&&&&&&&&&&&&&&&&&", warehouse_ids
-#    warehouse_obj.write(
-#        cr, SUPERUSER_ID, warehouse_ids, {'manufacture_to_resupply': True})
-#    if len(warehouse_ids) > 1:
-#        openupgrade.message(
-#            cr, 'mrp', False, False,
-#            "Manufacturing is now enabled on all your warehouses. If this is "
-#            "not appropriate, disable the option 'Manufacture in this "
-#            "Warehouse' on the warehouse settings. You need to have 'Manage "
-#            "Push and Pull inventory flows' checked on your user record in "
-#            "order to access this setting.")
-
-#@openupgrade.migrate()
-#def migrate(cr, version):
-#    with api.Environment.manage():
-#    env = api.Environment(cr, SUPERUSER_ID, {})
-#    pool = pooler.get_pool(cr.dbname)
-#    bom_product_template(cr)
-#    migrate_bom_lines(cr, pool)
-#    fix_domains(cr, pool)
-#    update_stock_moves(env)
-#    update_stock_picking_name(cr, pool)
-#    migrate_product_supply_method(cr, pool)
-#    migrate_product(cr, pool)
-#    migrate_stock_warehouse(cr, pool)
-#    migrate_procurement_order(cr, pool)
-#    openupgrade_80.set_message_last_post(
-#        cr, SUPERUSER_ID, pool,
-#        ['mrp.bom', 'mrp.production', 'mrp.production.workcenter.line'])
+def copy_user_id(cr):
+    openupgrade.logged_query(cr, """
+        UPDATE project_project p
+        SET user_id = a.user_id
+        FROM account_analytic_account a
+        WHERE a.id = p.analytic_account_id
+        """)
 
 @openupgrade.migrate()
 def migrate(cr, version):
-    pool = pooler.get_pool(cr.dbname)
-    migrate_stock_warehouse(cr, pool)
+    #drop_null(cr)
     map_priority(cr)
     map_template_state(cr)
+    create_task_id(cr)
+    assign_task_work(cr)
+    copy_user_id(cr)
     for table_name in column_copies.keys():
         for (old, new, field_type) in column_copies[table_name]:
             openupgrade.convert_field_to_html(cr, table_name, openupgrade.get_legacy_name(old), old)

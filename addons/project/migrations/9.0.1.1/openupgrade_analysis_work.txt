@@ -59,6 +59,7 @@ project      / project.task             / reviewer_id (many2one)        : DEL re
 
 project      / project.task             / work_ids (one2many)           : DEL relation: project.task.work
 # TODO - Task Work is now in Timesheet so we might need migration script for that.
+# Done - Task work records are inserted into analytic line. (Will be able to see once project_timesheet is installed.)
 
 project      / project.task.type        / case_default (boolean)        : DEL 
 # Nothing to do : This boolean field not needed anymore because the task stages are retrieved from its default_method itself.
