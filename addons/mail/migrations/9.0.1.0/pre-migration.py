@@ -10,6 +10,7 @@ logger = logging.getLogger('OpenUpgrade.stock')
 @openupgrade.migrate()
 def migrate(cr, version):
 
+
     openupgrade.logged_query(cr, """
         DELETE FROM ir_ui_view v
         USING ir_model_data d
