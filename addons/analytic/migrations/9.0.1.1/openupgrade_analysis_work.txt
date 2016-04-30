@@ -1,6 +1,7 @@
 ---Fields in module 'analytic'---
 analytic     / account.analytic.account / account_type (selection)      : NEW required: required, selection_keys: ['normal'], req_default: normal
 #TODO : retrieve values of type selection field and convert all to normal from non-normal key.
+#DONE : Done in pre-migration script.
 
 analytic     / account.analytic.account / child_ids (one2many)          : DEL relation: account.analytic.account
 #Nothing to do : No longer needed.
@@ -40,12 +41,14 @@ analytic     / account.analytic.account / template_id (many2one)        : DEL re
 
 analytic     / account.analytic.account / type (selection)              : DEL required: required, selection_keys: ['contract', 'normal', 'template', 'view'], req_default: normal
 #Nothing to do : field is now account_type.
+#DONE : Done in pre-migration script.
 
 analytic     / account.analytic.account / user_id (many2one)            : DEL relation: res.users
 #Nothing to do : No longer needed.
 
 analytic     / account.analytic.line    / partner_id (many2one)         : NEW relation: res.partner
-#TODO : get partner from user and set it to partner_id in post-migration
+#TODO : get partner from user and set it to partner_id field in post-migration.
+#DONE : Done in post-migration script.
 
 analytic     / account.analytic.line    / tag_ids (many2many)           : NEW relation: account.analytic.tag
 #Nothing to do : New field added

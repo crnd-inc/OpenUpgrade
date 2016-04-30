@@ -75,4 +75,3 @@ def migrate(cr, version):
         openupgrade.rename_columns(cr, {'project_project': [('members', None)]})
     # Removing transient tables to get rid of warnings
     openupgrade.drop_columns(cr, column_drops)
-    print "\n\nPremigration-project #############################"
