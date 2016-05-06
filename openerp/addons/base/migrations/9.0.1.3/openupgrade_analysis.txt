@@ -63,6 +63,7 @@ base         / res.partner.bank         / bank_id (many2one)            : NEW re
 base         / res.partner.bank         / bank_name (char)              : DEL 
 base         / res.partner.bank         / city (char)                   : DEL 
 base         / res.partner.bank         / country_id (many2one)         : DEL relation: res.country
+base         / res.partner.bank         / currency_id (many2one)        : NEW relation: res.currency
 base         / res.partner.bank         / footer (boolean)              : DEL 
 base         / res.partner.bank         / name (char)                   : DEL 
 base         / res.partner.bank         / owner_name (char)             : DEL 

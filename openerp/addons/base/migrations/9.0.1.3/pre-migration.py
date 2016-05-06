@@ -53,8 +53,20 @@ column_renames = {
     ],
 }
 
-
 @openupgrade.migrate()
 def migrate(cr, version):
     openupgrade.copy_columns(cr, column_copies)
     openupgrade.rename_columns(cr, column_renames)
+    # Inherited Views that shows error while running the migration for sale module.
+    cr.execute("""
+        UPDATE ir_ui_view
+        SET active = FALSE
+        WHERE name in ('res.partner.view.address_type', 'crm settings',
+        'partner.view.button.journal_item_count')
+    """)
+    cr.execute("""
+        UPDATE ir_ui_view SET active=false WHERE inherit_id in 
+        (SELECT id FROM ir_ui_view WHERE name in 
+        ('res.partner.view.address_type','crm settings',
+        'partner.view.button.journal_item_count'))
+    """)

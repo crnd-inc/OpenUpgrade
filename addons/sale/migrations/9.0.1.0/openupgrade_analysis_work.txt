@@ -5,24 +5,29 @@ sale         / account.analytic.line    / so_line (many2one)            : NEW re
 sale         / account.invoice          / section_id (many2one)         : DEL relation: crm.case.section
 sale         / account.invoice          / team_id (many2one)            : NEW relation: crm.team
 #TODO : section_id is now team_id
+#Done : renamed the column to new column team_id.
 
 sale         / account.invoice.line     / sale_line_ids (many2many)     : NEW relation: sale.order.line
 #Nothing To Do : New Functionality added. 
 
 sale         / crm.team                 / invoiced_target (integer)     : NEW
 #TODO : to get it from crm.case.section
+#Done : In Sales Team migration script.
 
 sale         / crm.team                 / use_invoices (boolean)        : NEW
 #Nothing To Do : New Functionality added.
 
 sale         / crm.team                 / use_quotations (boolean)      : NEW 
 #TODO : to get it from crm.case.section
+#Done : In Sales Team migration script.
 
 sale         / product.template         / invoice_policy (selection)    : NEW selection_keys: ['cost', 'delivery', 'order']
-#TODO : ??  (used to generate the invoice, maybe we can set it to 'cost')
+#TODO : (used to generate the invoice, maybe we can set it to 'order')
+#Done : Set all to 'order'. (Will invoiced the ordered qty.)
 
 sale         / product.template         / track_service (selection)     : NEW selection_keys: ['manual']
 #TODO : Set all records to manual.
+#Done : Set all to 'manual'.
 
 sale         / sale.order               / date_confirm (date)           : DEL
 #Nothing to do : Functionality removed so now no longer needed.
@@ -47,9 +52,10 @@ sale         / sale.order               / payment_term (many2one)       : was re
 sale         / sale.order               / section_id (many2one)         : DEL relation: crm.case.section
 sale         / sale.order               / team_id (many2one)            : NEW relation: crm.team
 #TODO : section_id is now team_id
+#Done : renamed the column to new column team_id.
 
 sale         / sale.order               / state (selection)             : selection_keys is now '['cancel', 'done', 'draft', 'sale', 'sent']' ('['cancel', 'done', 'draft', 'invoice_except', 'manual', 'progress', 'sent', 'shipping_except', 'waiting_date']')
-TODO : To map the state values as per new values.
+TODO : To map the state values as per new values. #######################
 
 sale         / sale.order               / validity_date (date)          : NEW
 #Nothing To Do : New Functionality added.
@@ -61,7 +67,7 @@ sale         / sale.order.line          / delay (float)                 : was re
 #Nothing To Do : ORM will change the name automatically.
 
 sale         / sale.order.line          / product_id (many2one)         : now required
-#TODO : To get product values 
+#TODO : Maybe To create product from description. (need more analysis on this) #######################
 
 sale         / sale.order.line          / product_uos (many2one)        : DEL relation: product.uom
 #TODO : Moved to product_uos module (so saved it for later use.)
@@ -73,7 +79,7 @@ sale         / sale.order.line          / qty_delivered (float)         : NEW
 #Nothing To Do : New Functionality added.
 
 sale         / sale.order.line          / state (selection)             : selection_keys is now 'function' ('['cancel', 'confirmed', 'done', 'draft', 'exception']')
-TODO : To map the state values as per new values.
+TODO : To map the state values as per new values. #######################
 
 sale         / sale.order.line          / th_weight (float)             : DEL 
 #Nothing To Do : Functionality removed now no longer needed.
@@ -137,6 +143,8 @@ NEW res.groups: sale.group_display_incoterm
 DEL res.groups: sale.group_invoice_so_lines
 NEW web.tip: sale.sale_tip_1
 NEW web.tip: sale.sale_tip_2
+
+
 DEL workflow: sale.wkf_sale
 DEL workflow.activity: sale.act_cancel
 DEL workflow.activity: sale.act_cancel2
@@ -184,3 +192,5 @@ DEL workflow.transition: sale.trans_wait_invoice_invoice_manual
 DEL workflow.transition: sale.trans_wait_ship_cancel3
 DEL workflow.transition: sale.trans_wait_ship_done
 DEL workflow.transition: sale.trans_wait_ship_ship
+
+#Done : THE WORKFLOW IS REMOVED WITH THE DELETE WORKFLOW FUNCTION

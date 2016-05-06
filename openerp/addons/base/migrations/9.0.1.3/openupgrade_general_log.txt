@@ -1,20 +1,12 @@
 ---Fields in module 'general'---
-# 2267 fields matched,
-# Direct match: 1831
-# Found in other module: 5
+# 1219 fields matched,
+# Direct match: 1078
+# Found in other module: 4
 # Found with different name: 0
 # Found with different type: 0
-# In obsolete models: 431
-# New columns: 507
-# Not matched: 270
-new model account.account.tag
-new model account.analytic.tag
-new model account.bank.statement.cashbox
-new model account.operation.template
-new model account.partial.reconcile
-new model account.payment
-new model account.payment.method
-new model account.tax.group
+# In obsolete models: 137
+# New columns: 243
+# Not matched: 49
 new model bus.presence
 new model crm.team
 new model ir.sequence.date_range
@@ -23,28 +15,11 @@ new model mail.channel.partner
 new model mail.shortcode
 new model mail.template
 new model mail.tracking.value
-new model payment.method
 new model res.users.log
 new model web.planner
 new model web.tip
 new model web_editor.converter.test
 new model web_editor.converter.test.sub
-obsolete model account.analytic.journal
-obsolete model account.fiscalyear
-obsolete model account.journal.cashbox.line
-obsolete model account.journal.period
-obsolete model account.model
-obsolete model account.model.line
-obsolete model account.move.reconcile
-obsolete model account.period
-obsolete model account.sequence.fiscalyear
-obsolete model account.statement.operation.template
-obsolete model account.subscription
-obsolete model account.subscription.line
-obsolete model account.tax.code
-obsolete model account.tax.code.template
-obsolete model account.voucher
-obsolete model account.voucher.line
 obsolete model crm.case.section
 obsolete model email.template
 obsolete model ir.default
@@ -53,118 +28,13 @@ obsolete model ir.sequence.type
 obsolete model mail.group
 obsolete model mail.notification
 obsolete model multi_company.default
-obsolete model pricelist.partnerinfo
-obsolete model product.price.type
-obsolete model product.pricelist.type
-obsolete model product.pricelist.version
-obsolete model product.ul
 obsolete model res.partner.bank.type
 obsolete model res.partner.bank.type.field
-obsolete model temp.range
 ---XML records in module 'general'---
 ERROR: module not in list of installed modules:
----Fields in module 'edi'---
----XML records in module 'edi'---
-DEL ir.ui.view: edi.assets_backend
-ERROR: module not in list of installed modules:
----Fields in module 'account_voucher'---
----XML records in module 'account_voucher'---
-DEL ir.actions.act_window: account_voucher.act_journal_voucher_open
-DEL ir.actions.act_window: account_voucher.act_pay_bills
-DEL ir.actions.act_window: account_voucher.act_pay_voucher
-DEL ir.actions.act_window: account_voucher.action_purchase_receipt
-DEL ir.actions.act_window: account_voucher.action_review_voucher_list
-DEL ir.actions.act_window: account_voucher.action_sale_receipt
-DEL ir.actions.act_window: account_voucher.action_sale_receipt_report_all
-DEL ir.actions.act_window: account_voucher.action_vendor_payment
-DEL ir.actions.act_window: account_voucher.action_vendor_receipt
-DEL ir.actions.act_window: account_voucher.action_voucher_list
-DEL ir.actions.act_window.view: account_voucher.action_journal_voucher_form
-DEL ir.actions.act_window.view: account_voucher.action_journal_voucher_tree
-DEL ir.actions.act_window.view: account_voucher.action_purchase_receipt_form
-DEL ir.actions.act_window.view: account_voucher.action_purchase_receipt_tree
-DEL ir.actions.act_window.view: account_voucher.action_sale_receipt_form
-DEL ir.actions.act_window.view: account_voucher.action_sale_receipt_tree
-DEL ir.actions.act_window.view: account_voucher.action_vendor_payment_form
-DEL ir.actions.act_window.view: account_voucher.action_vendor_payment_tree
-DEL ir.actions.act_window.view: account_voucher.action_vendor_receipt_form
-DEL ir.actions.act_window.view: account_voucher.action_vendor_receipt_tree
-DEL ir.actions.client: account_voucher.action_client_invoice_menu
-DEL ir.actions.todo: base.open_menu
-DEL ir.model.access: account_voucher.access_account_voucher_invoice
-DEL ir.model.access: account_voucher.access_account_voucher_line_invoice
-DEL ir.model.access: account_voucher.access_account_voucher_line_manager
-DEL ir.model.access: account_voucher.access_account_voucher_manager
-DEL ir.model.access: account_voucher.access_sale_receipt_report_manager
-DEL ir.model.access: account_voucher.access_sale_receipt_report_user
-DEL ir.rule: account_voucher.voucher_comp_rule
-DEL ir.rule: account_voucher.voucher_line_comp_rule
-DEL ir.sequence: account_voucher.seq_bank_pay_voucher
-DEL ir.sequence: account_voucher.seq_bank_rec_voucher
-DEL ir.sequence: account_voucher.seq_cash_pay_voucher
-DEL ir.sequence: account_voucher.seq_cash_rec_voucher
-DEL ir.sequence: account_voucher.seq_contra_voucher
-DEL ir.sequence: account_voucher.seq_jou_pur_voucher
-DEL ir.sequence: account_voucher.seq_jou_sale_voucher
-DEL ir.sequence.type: account_voucher.seq_type_bank_pay_voucher
-DEL ir.sequence.type: account_voucher.seq_type_bank_rec_voucher
-DEL ir.sequence.type: account_voucher.seq_type_cash_pay_voucher
-DEL ir.sequence.type: account_voucher.seq_type_cash_rec_voucher
-DEL ir.sequence.type: account_voucher.seq_type_contra_voucher
-DEL ir.sequence.type: account_voucher.seq_type_jou_pur_voucher
-DEL ir.sequence.type: account_voucher.seq_type_jou_sale_voucher
-DEL ir.ui.menu: account_voucher.menu_action_purchase_receipt
-DEL ir.ui.menu: account_voucher.menu_action_sale_receipt
-DEL ir.ui.menu: account_voucher.menu_action_sale_receipt_report_all
-DEL ir.ui.menu: account_voucher.menu_action_vendor_payment
-DEL ir.ui.menu: account_voucher.menu_action_vendor_receipt
-DEL ir.ui.menu: account_voucher.menu_encode_entries_by_voucher
-DEL ir.ui.view: account_voucher.account_cash_statement_graph
-DEL ir.ui.view: account_voucher.view_invoice_customer
-DEL ir.ui.view: account_voucher.view_invoice_supplier
-DEL ir.ui.view: account_voucher.view_low_priority_payment_form
-DEL ir.ui.view: account_voucher.view_purchase_receipt_form
-DEL ir.ui.view: account_voucher.view_sale_receipt_form
-DEL ir.ui.view: account_voucher.view_sale_receipt_report_graph
-DEL ir.ui.view: account_voucher.view_sale_receipt_report_search
-DEL ir.ui.view: account_voucher.view_vendor_payment_form
-DEL ir.ui.view: account_voucher.view_vendor_receipt_dialog_form
-DEL ir.ui.view: account_voucher.view_vendor_receipt_form
-DEL ir.ui.view: account_voucher.view_voucher_filter
-DEL ir.ui.view: account_voucher.view_voucher_filter_customer_pay
-DEL ir.ui.view: account_voucher.view_voucher_filter_sale
-DEL ir.ui.view: account_voucher.view_voucher_filter_vendor
-DEL ir.ui.view: account_voucher.view_voucher_filter_vendor_pay
-DEL ir.ui.view: account_voucher.view_voucher_form
-DEL ir.ui.view: account_voucher.view_voucher_line_form
-DEL ir.ui.view: account_voucher.view_voucher_tree
-DEL ir.ui.view: account_voucher.view_voucher_tree_nocreate
-DEL mail.message: account_voucher.module_install_notification
-DEL mail.message.subtype: account_voucher.mt_voucher_state_change
-DEL res.request.link: account_voucher.req_link_voucher
-DEL workflow: account_voucher.wkf
-DEL workflow.activity: account_voucher.act_cancel
-DEL workflow.activity: account_voucher.act_done
-DEL workflow.activity: account_voucher.act_proforma
-DEL workflow.transition: account_voucher.t2
-DEL workflow.transition: account_voucher.t6
-DEL workflow.transition: account_voucher.t7
-DEL workflow.transition: account_voucher.t8
-ERROR: module not in list of installed modules:
----Fields in module 'web_tests'---
----XML records in module 'web_tests'---
-DEL ir.ui.view: web_tests.assets_backend
-ERROR: module not in list of installed modules:
----Fields in module 'board'---
----XML records in module 'board'---
-DEL ir.actions.act_window: board.action_board_create
-DEL ir.actions.act_window: board.open_board_my_dash_action
-DEL ir.model.access: board.access_board_board all
-DEL ir.ui.menu: board.menu_board_create
-DEL ir.ui.menu: board.menu_board_my_dash
-DEL ir.ui.view: board.assets_backend
-DEL ir.ui.view: board.board_my_dash_view
-DEL ir.ui.view: board.view_board_create
+---Fields in module 'web_kanban_sparkline'---
+---XML records in module 'web_kanban_sparkline'---
+DEL ir.ui.view: web_kanban_sparkline.assets_backend
 ERROR: module not in list of installed modules:
 ---Fields in module 'email_template'---
 email_template / ir.actions.server        / template_id (many2one)        : module is now 'mail' ('email_template')
@@ -187,10 +57,6 @@ DEL ir.ui.view: email_template.res_partner_opt_out_search
 DEL ir.ui.view: email_template.view_email_template_search
 DEL ir.ui.view: email_template.view_server_action_form_template
 ERROR: module not in list of installed modules:
----Fields in module 'web_kanban_sparkline'---
----XML records in module 'web_kanban_sparkline'---
-DEL ir.ui.view: web_kanban_sparkline.assets_backend
-ERROR: module not in list of installed modules:
 ---Fields in module 'web_graph'---
 ---XML records in module 'web_graph'---
 DEL ir.ui.view: web_graph.assets_backend
@@ -198,3 +64,7 @@ ERROR: module not in list of installed modules:
 ---Fields in module 'web_gantt'---
 ---XML records in module 'web_gantt'---
 DEL ir.ui.view: web_gantt.assets_backend
+ERROR: module not in list of installed modules:
+---Fields in module 'web_tests'---
+---XML records in module 'web_tests'---
+DEL ir.ui.view: web_tests.assets_backend
