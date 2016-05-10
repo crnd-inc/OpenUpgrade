@@ -9,7 +9,7 @@ sales_team   / crm.team                 / company_id (many2one)         : NEW re
 
 sales_team   / crm.team                 / member_ids (one2many)         : NEW relation: res.users
 #TODO : Convert m2m to o2m.
-#Done : Done in Pre-migraion script
+#Done : Done in Post-migraion script
 
 sales_team   / crm.team                 / message_follower_ids (one2many): NEW relation: mail.followers
 sales_team   / crm.team                 / message_ids (one2many)        : NEW relation: mail.message

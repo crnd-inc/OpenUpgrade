@@ -38,7 +38,6 @@ stock        / stock.picking            / pack_operation_product_ids (one2many):
 stock        / stock.picking            / picking_type_code (char)      : selection_keys is now '['incoming', 'internal', 'outgoing']' ('False')
 stock        / stock.picking            / picking_type_code (char)      : type is now 'selection' ('char')
 stock        / stock.picking            / printed (boolean)             : NEW 
-stock        / stock.picking            / website_message_ids (one2many): NEW relation: mail.message
 stock        / stock.picking.type       / barcode_nomenclature_id (many2one): NEW relation: barcode.nomenclature
 stock        / stock.picking.type       / show_entire_packs (boolean)   : NEW 
 stock        / stock.picking.type       / use_create_lots (boolean)     : NEW 
@@ -46,7 +45,6 @@ stock        / stock.picking.type       / use_existing_lots (boolean)   : NEW
 stock        / stock.production.lot     / message_follower_ids (many2many): not a function anymore
 stock        / stock.production.lot     / message_follower_ids (many2many): relation is now 'mail.followers' ('res.partner')
 stock        / stock.production.lot     / message_follower_ids (many2many): type is now 'one2many' ('many2many')
-stock        / stock.production.lot     / website_message_ids (one2many): NEW relation: mail.message
 stock        / stock.quant.package      / ul_id (many2one)              : DEL relation: product.ul
 stock        / stock.warehouse.orderpoint / lead_days (integer)           : NEW 
 stock        / stock.warehouse.orderpoint / lead_type (selection)         : NEW required: required, selection_keys: ['net', 'supplier'], req_default: function
@@ -84,6 +82,7 @@ DEL ir.model.access: stock.access_product_price_type_stock_manager
 DEL ir.model.access: stock.access_product_pricelist_type_stock_manager
 DEL ir.model.access: stock.access_product_pricelist_version_stock_manager
 DEL ir.model.access: stock.access_product_ul_stock_manager
+DEL ir.rule: stock.stock_quant_rule
 DEL ir.sequence.type: stock.seq_type_picking_in
 DEL ir.sequence.type: stock.seq_type_picking_internal
 DEL ir.sequence.type: stock.seq_type_picking_out

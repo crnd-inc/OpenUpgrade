@@ -46,7 +46,6 @@ def product_id_env(env):
 def migrate(cr, version):
     pool = pooler.get_pool(cr.dbname)
     env = api.Environment(cr, SUPERUSER_ID, {})
-    product_id(cr, pool)
     product_id_env(env)
     set_invoice_policy(cr)
     set_track_service(cr)

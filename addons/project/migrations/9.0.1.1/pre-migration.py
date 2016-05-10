@@ -32,7 +32,7 @@ column_copies = {
     ],
 }
 
-# These columns are kept even though they were removed in v9, in order to allow recovery by a future OCA module
+# These column is kept even though it is removed in v9, in order to allow recovery by a future OCA module.
 column_renames = {
     'project_task': [
         ('reviewer_id', None),
@@ -41,14 +41,6 @@ column_renames = {
     'project_tags_project_task_rel': [
         ('project_category_id', 'project_tags_id'),
     ],
-    # rename columns to get project task work
-#    'project_task_work': [
-#        ('name', None),
-#        ('date', None),
-#        ('hours', None), # unit_amount in analytic
-#        ('user_id', None),
-#        ('company_id', None),
-#    ],
 }
 
 table_renames = [
