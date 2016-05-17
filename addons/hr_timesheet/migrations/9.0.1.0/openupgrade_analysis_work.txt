@@ -1,7 +1,12 @@
 ---Fields in module 'hr_timesheet'---
 hr_timesheet / account.analytic.line    / is_timesheet (boolean)        : NEW 
+#TODO : Set all analytic line to true where its analytic account use_timesheet is true.
+#Done : done in post-migration script
+
 hr_timesheet / hr.employee              / journal_id (many2one)         : DEL relation: account.analytic.journal
 hr_timesheet / hr.employee              / product_id (many2one)         : DEL relation: product.product
+#Nothing To Do : Functionality removed now no longer needed.
+
 
 ---XML records in module 'hr_timesheet'---
 DEL account.analytic.journal: hr_timesheet.analytic_journal

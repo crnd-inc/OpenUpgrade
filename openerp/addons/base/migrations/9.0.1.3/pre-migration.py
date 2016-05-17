@@ -63,20 +63,21 @@ def migrate(cr, version):
     on wkf.id = ir.res_id and ir.name = 'trans_confirmed_double_gt' 
     and ir.module = 'purchase_double_validation'
     """)
-    amount = cr.dictfetchone()
-    double_validation_amount = str(amount['condition']).split(" ")[-1]
+#    amount = cr.dictfetchone()
+#    double_validation_amount = str(amount['condition']).split(" ")[-1]
 
     # delete purchase order workflow
     openupgrade.delete_model_workflow(cr, 'purchase.order')
-    transitions = openupgrade.deactivate_workflow_transitions(cr, 'purchase.order')
+#    transitions = openupgrade.deactivate_workflow_transitions(cr, 'purchase.order')
 #    openupgrade.reactivate_workflow_transitions(cr, transitions)
 
-    # Inherited Views that shows error while running the migration for sale module.
+    # Inherited Views that encountered errors while running the migration.
     cr.execute("""
         UPDATE ir_ui_view
         SET active = FALSE
         WHERE name in ('res.partner.view.address_type', 'crm settings',
-        'partner.view.button.journal_item_count','res.partner.stock.property.form.inherit')
+        'partner.view.button.journal_item_count','res.partner.stock.property.form.inherit',
+        'res.users.form.hr')
     """)
     cr.execute("""
         UPDATE ir_ui_view SET active=false WHERE inherit_id in 
