@@ -4,7 +4,6 @@ hr_holidays  / hr.holidays              / message_follower_ids (many2many): rela
 hr_holidays  / hr.holidays              / message_follower_ids (many2many): type is now 'one2many' ('many2many')
 hr_holidays  / hr.holidays              / payslip_status (boolean)      : NEW 
 hr_holidays  / hr.holidays              / report_note (text)            : NEW 
-hr_holidays  / hr.holidays              / website_message_ids (one2many): NEW relation: mail.message
 hr_holidays  / hr.holidays.status       / company_id (many2one)         : NEW relation: res.company
 ---XML records in module 'hr_holidays'---
 NEW ir.actions.act_window: hr_holidays.act_hr_employee_holiday_request_approved

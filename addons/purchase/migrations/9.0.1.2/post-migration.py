@@ -20,6 +20,11 @@ def map_order_state(cr):
          ('sent', 'sent')],
         table='purchase_order')
 
+def map_order_line_state(cr):
+    cr.execute("""
+    UPDATE purchase_order_line l SET state = o.state FROM purchase_order o WHERE l.order_id = o.id
+    """)
+
 def product_id_env(env):
     # Assign product where it is NULL
     product = env['product.product'].create({'name': 'Service Product', 
@@ -38,7 +43,6 @@ def pricelist_property(cr, env):
     partner = []
     currency = []
     for property in property_rec:
-        print property.value_reference
         if property.value_reference:
             product_pricelist = property.value_reference
             res_partner = property.res_id
@@ -84,6 +88,7 @@ def account_properties(cr):
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     map_order_state(cr)
+    map_order_line_state(cr)
     product_id_env(env)
     pricelist_property(cr, env)
     account_properties(cr)

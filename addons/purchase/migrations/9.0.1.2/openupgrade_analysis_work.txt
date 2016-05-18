@@ -62,17 +62,17 @@ purchase     / purchase.order.line      / product_id (many2one)         : now re
 
 purchase     / purchase.order.line      / state (selection)             : DEL required: required, selection_keys: ['cancel', 'confirmed', 'done', 'draft'], req_default: function
 TODO : To map the state values as per new values. 
-#Done : Mapped the values as per new state values   =======================================
+#Done : Mapped the values as per new state values, done in pre-migration script.
 
 purchase     / res.company              / po_double_validation (selection): NEW selection_keys: ['one_step', 'two_step']
 purchase     / res.company              / po_double_validation_amount (float): NEW 
 #TODO : Saved it for later use (moved to purchase module in v9 from purchase_double_validation module in v8).
-#Done :   ===============================
+#Done : need some help (the value is retrieved but need to delete the workflow at the same time)
 
 purchase     / res.partner              / property_product_pricelist_purchase (many2one): DEL relation: product.pricelist
 purchase     / res.partner              / property_purchase_currency_id (many2one): NEW relation: res.currency
 #TODO : To get currency from the purchase Pricelist property.
-#Done :   ===================================
+#Done : Done in post-migration script
 
 ---XML records in module 'purchase'---
 DEL email.template: purchase.email_template_edi_purchase

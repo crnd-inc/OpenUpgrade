@@ -2,7 +2,6 @@
 hr_timesheet / account.analytic.line    / is_timesheet (boolean)        : NEW 
 hr_timesheet / hr.employee              / journal_id (many2one)         : DEL relation: account.analytic.journal
 hr_timesheet / hr.employee              / product_id (many2one)         : DEL relation: product.product
-
 ---XML records in module 'hr_timesheet'---
 DEL account.analytic.journal: hr_timesheet.analytic_journal
 DEL hr.employee: hr.employee
