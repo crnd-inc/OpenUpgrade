@@ -21,8 +21,6 @@ column_renames = {
 @openupgrade.migrate()
 def migrate(cr, version):
 
-    openupgrade.rename_columns(cr, column_renames)
-
     # Add the column product_id, because we need it in the post-migration
     # script
     openupgrade.logged_query(cr, """ALTER TABLE product_price_history
@@ -60,6 +58,8 @@ def migrate(cr, version):
         ALTER TABLE product_pricelist_item
         ALTER COLUMN price_version_id DROP NOT NULL
         """)
+
+    openupgrade.rename_columns(cr, column_renames)
 
     # Add default value when it is null, as Product name / Package Logistic
     # Unit name

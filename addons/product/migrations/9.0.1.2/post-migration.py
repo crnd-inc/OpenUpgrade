@@ -189,14 +189,14 @@ def update_product_template(cr):
     openupgrade.logged_query(cr, """
         DELETE FROM ir_property
         WHERE name = 'standard_price'
-        AND res_id like 'product.template%'
-        )""")
+        AND res_id like 'product.template%%'
+        """)
 
     # On the template, set weight and volume to 0.0 on templates with more
     # than one (active?) variant as per _compute_product_template_field.
     openupgrade.logged_query(cr, """
         UPDATE product_template
-        SET volume = 0.0, weight= 0.0
+        SET volume = 0.0, weight = 0.0
         FROM (
             SELECT pt.id, count(pp.id) as count
             FROM product_product as pp
