@@ -1,5 +1,7 @@
 ---Fields in module 'purchase'---
 purchase     / account.invoice          / purchase_id (many2one)        : NEW relation: purchase.order
+purchase     / product.category         / property_account_creditor_price_difference_categ (many2one): NEW relation: account.account
+purchase     / product.template         / property_account_creditor_price_difference (many2one): NEW relation: account.account
 purchase     / product.template         / purchase_method (selection)   : NEW selection_keys: ['purchase', 'receive']
 purchase     / purchase.order           / bid_date (date)               : DEL 
 purchase     / purchase.order           / bid_validity (date)           : DEL 
@@ -122,6 +124,7 @@ DEL workflow.transition: purchase.trans_except_invoice_invoice_done
 DEL workflow.transition: purchase.trans_except_picking
 DEL workflow.transition: purchase.trans_except_picking_picking_done
 DEL workflow.transition: purchase.trans_invoice_done_done
+DEL workflow.transition: purchase.trans_invoice_end_cancel
 DEL workflow.transition: purchase.trans_invoice_end_done
 DEL workflow.transition: purchase.trans_invoice_except_invoice
 DEL workflow.transition: purchase.trans_invoice_invoice_done

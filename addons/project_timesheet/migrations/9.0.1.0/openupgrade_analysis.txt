@@ -1,5 +1,6 @@
 ---Fields in module 'project_timesheet'---
 project_timesheet / account.analytic.line    / task_id (many2one)            : NEW relation: project.task
+project_timesheet / project.task             / timesheet_ids (one2many)      : NEW relation: account.analytic.line
 ---XML records in module 'project_timesheet'---
 DEL ir.actions.act_window: project_timesheet.action_account_analytic_overdue
 DEL ir.actions.act_window: project_timesheet.action_project_timesheet_bill_task

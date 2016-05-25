@@ -24,7 +24,6 @@ payment      / payment.transaction      / partner_lang (char)           : type i
 payment      / payment.transaction      / partner_reference (char)      : DEL 
 payment      / payment.transaction      / payment_method_id (many2one)  : NEW relation: payment.method
 payment      / payment.transaction      / type (selection)              : selection_keys is now '['form', 'form_save', 'server2server']' ('['form', 'server2server']')
-payment      / payment.transaction      / website_message_ids (one2many): DEL relation: mail.message
 payment      / res.partner              / payment_method_ids (one2many) : NEW relation: payment.method
 ---XML records in module 'payment'---
 NEW ir.actions.act_window: payment.action_payment_tx_ids

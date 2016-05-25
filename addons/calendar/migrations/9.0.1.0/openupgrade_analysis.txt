@@ -2,7 +2,6 @@
 calendar     / calendar.event           / message_follower_ids (many2many): not a function anymore
 calendar     / calendar.event           / message_follower_ids (many2many): relation is now 'mail.followers' ('res.partner')
 calendar     / calendar.event           / message_follower_ids (many2many): type is now 'one2many' ('many2many')
-calendar     / calendar.event           / website_message_ids (one2many): NEW relation: mail.message
 ---XML records in module 'calendar'---
 DEL email.template: calendar.calendar_template_meeting_changedate
 DEL email.template: calendar.calendar_template_meeting_invitation
