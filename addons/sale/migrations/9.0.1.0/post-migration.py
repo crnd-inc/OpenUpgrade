@@ -30,12 +30,12 @@ def map_order_state(cr):
     # Mapping values for state field in sale.order and sale.order.line
     openupgrade.map_values(
         cr, openupgrade.get_legacy_name('state'), 'state', 
-        [('draft', 'draft'), ('sent', 'sent'), ('cancel', 'cancel'), ('waiting_date', 'sale'), ('progress', 'sale'), ('manual', 'sale'), ('shipping_except', 'sale'), ('invoice_except', 'sale'), ('done', 'done')],
+        [('waiting_date', 'sale'), ('progress', 'sale'), ('manual', 'sale'), ('shipping_except', 'sale'), ('invoice_except', 'sale')],
         table='sale_order')
 
     openupgrade.map_values(
         cr, openupgrade.get_legacy_name('state'), 'state', 
-        [('cancel', 'cancel'), ('draft', 'draft'), ('confirmed', 'sale'), ('exception', 'sale'), ('done', 'done')],
+        [('confirmed', 'sale'), ('exception', 'sale')],
         table='sale_order_line')
 
 def product_id_env(env):

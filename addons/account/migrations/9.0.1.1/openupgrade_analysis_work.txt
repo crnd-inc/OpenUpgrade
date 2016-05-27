@@ -10,6 +10,7 @@ account      / account.account          / currency_mode (selection)     : DEL re
 
 account      / account.account          / deprecated (boolean)          : NEW 
 # TODO: If the active field is False, set it to True
+# Done : done in post-migration script
 
 account      / account.account          / financial_report_ids (many2many): DEL relation: account.financial.report
 
@@ -22,20 +23,19 @@ account      / account.account          / parent_right (integer)        : DEL
 account      / account.account          / shortcut (char)               : DEL 
 
 account      / account.account          / tag_ids (many2many)           : NEW relation: account.account.tag
-# TODO: see generic methods: 'Compute tag_ids'
+# NOTHING TO DO: New functionality added.
 
 account      / account.account          / type (selection)              : DEL required: required, selection_keys: ['closed', 'consolidation', 'liquidity', 'other', 'payable', 'receivable', 'view'], req_default: other
-# TODO: see generic methods: 'Compute type'
+# TODO: delete accounts type having 'view' 
 account      / account.account          / user_type (many2one)          : was renamed to user_type_id [nothing to to]
 
 
 #### FIELDS IN MODEL ACCOUNT.TAG ####
-This is a new model. So no need to migrate anything.
 
 account      / account.account.tag      / applicability (selection)     : NEW required: required, selection_keys: ['accounts', 'taxes'], req_default: accounts
 account      / account.account.tag      / color (integer)               : NEW 
 account      / account.account.tag      / name (char)                   : NEW required: required
-
+# NOTHING TO DO: This is a new model. So no need to migrate anything.
 
 #### FIELDS IN MODEL ACCOUNT.TEMPLATE ####
 
@@ -44,8 +44,9 @@ account      / account.account.template / financial_report_ids (many2many): DEL 
 account      / account.account.template / parent_id (many2one)          : DEL relation: account.account.template
 account      / account.account.template / shortcut (char)               : DEL 
 
+
 account      / account.account.template / tag_ids (many2many)           : NEW relation: account.account.tag
-# TODO: see generic methods: 'Compute tag_ids'
+# NOTHING TO DO: New functionality added.
 
 account      / account.account.template / type (selection)              : DEL required: required, selection_keys: ['closed', 'consolidation', 'liquidity', 'other', 'payable', 'receivable', 'view'], req_default: view
 account      / account.account.template / user_type (many2one)          : was renamed to user_type_id [nothing to to]
@@ -74,7 +75,8 @@ account      / account.analytic.line    / journal_id (many2one)         : DEL re
 #### FIELDS IN MODEL ACCOUNT.BANK.STATEMENT ####
 
 account      / account.bank.statement   / account_id (many2one)         : module is now 'point_of_sale' ('account')
-# TODO: Will have to deal with it in the point_of_sale module. Rename it to 'None'.
+# TODO: Will have to deal with it in the point_of_sale module. Rename it to 'None'. 
+(It is a related field with Store = False so there would be no account_id in table)
 
 account      / account.bank.statement   / cashbox_end_id (many2one)     : NEW relation: account.bank.statement.cashbox
 account      / account.bank.statement   / cashbox_start_id (many2one)   : NEW relation: account.bank.statement.cashbox
@@ -83,11 +85,12 @@ account      / account.bank.statement   / cashbox_start_id (many2one)   : NEW re
 account      / account.bank.statement   / closing_date (datetime)       : DEL 
 account      / account.bank.statement   / date_done (datetime)          : NEW 
 # TODO: Column rename
+# Done : done in pre-migration script
 
 account      / account.bank.statement   / closing_details_ids (one2many): DEL relation: account.cashbox.line
 account      / account.bank.statement   / details_ids (one2many)        : DEL relation: account.cashbox.line
-account      / account.bank.statement   / message_follower_ids (many2many): not a function anymore
 
+account      / account.bank.statement   / message_follower_ids (many2many): not a function anymore
 account      / account.bank.statement   / message_follower_ids (many2many): relation is now 'mail.followers' ('res.partner')
 account      / account.bank.statement   / message_follower_ids (many2many): type is now 'one2many' ('many2many')
 account      / account.bank.statement   / website_message_ids (one2many): NEW relation: mail.message
@@ -97,14 +100,20 @@ account      / account.bank.statement   / opening_details_ids (one2many): DEL re
 account      / account.bank.statement   / period_id (many2one)          : DEL relation: account.period, required: requirOed, req_default: function
 account      / account.bank.statement   / state (selection)             : selection_keys is now '['confirm', 'open']' ('['confirm', 'draft', 'open']')
 # TODO: move values 'draft' to 'open'
+# Done : done in post-migration script
 
 
 #### FIELDS IN MODEL ACCOUNT.BANK.STATEMENT.CASHBOX ####
-This is a new model. In Odoo 8 the account.bank.statement would contain the opening and closing cash entries as a direct link to account.casbox.line using opening_details_ids and closing_details_ids. In Odoo 9 this model groups these lines, so that each account.bank.statement points to a single one cashbox_end_id and cashbox_start_id.
+This is a new model. In Odoo 8 the account.bank.statement would contain the opening and closing cash entries
+ as a direct link to account.casbox.line using opening_details_ids and closing_details_ids. 
+ In Odoo 9 this model groups these lines, so that each account.bank.statement points to a 
+ single one cashbox_end_id and cashbox_start_id.
 
 TODO: 
-- Create one record for each record in account.bank.statement where opening_details_ids has content. Then associate the new account.bank.statement.cashbox record in account.bank.statement  field 'cashbox_start_id'
-- Create one record for each record in account.bank.statement where closing_details_ids has content. Then associate the new account.bank.statement.cashbox record in account.bank.statement  field 'cashbox_end_id'
+- Create one record for each record in account.bank.statement where opening_details_ids has content. 
+Then associate the new account.bank.statement.cashbox record in account.bank.statement  field 'cashbox_start_id'
+- Create one record for each record in account.bank.statement where closing_details_ids has content. 
+Then associate the new account.bank.statement.cashbox record in account.bank.statement  field 'cashbox_end_id'
 
 account      / account.bank.statement.cashbox / cashbox_lines_ids (one2many)  : NEW relation: account.cashbox.line
 # TODO: Combine records from opening_details_ids, closing_details_ids
@@ -114,8 +123,10 @@ account      / account.bank.statement.cashbox / cashbox_lines_ids (one2many)  : 
 
 account      / account.bank.statement.line / journal_entry_id (many2one)   : DEL relation: account.move
 account      / account.bank.statement.line / journal_entry_ids (one2many)  : NEW relation: account.move
-# TODO: Update the move lines involved in bank statement lines with the statement. This changes from many2one to one2many, so the statement_id is now in the move line. In PRE, rename journal_entry_id to 'None'. In POS, use method m2o_to_x2m to translate manu2one to one2many.
-
+# TODO: Update the move lines involved in bank statement lines with the statement. 
+# This changes from many2one to one2many, so the statement_id is now in the move line. 
+# In PRE, rename journal_entry_id to 'None'. In POS, use method m2o_to_x2m to translate many2one to one2many.
+# Done : done with using the method m2o_to_x2m
 
 #### FIELDS IN MODEL ACCOUNT.CASHBOX.LINE ####
 
@@ -197,7 +208,8 @@ account      / account.fiscal.position  / zip_to (integer)              : NEW
 account      / account.invoice          / check_total (float)           : DEL 
 
 account      / account.invoice          / date (date)                   : NEW 
-# TODO: If the invoice date is not within the old period, then set as date the last day of the old forced period. Otherwise update with the invoice date value (date_invoice).
+# TODO: If the invoice date is not within the old period, 
+then set as date the last day of the old forced period. Otherwise update with the invoice date value (date_invoice).
 
 account      / account.invoice          / fiscal_position (many2one)    : was renamed to fiscal_position_id [nothing to to]
 account      / account.invoice          / internal_number (char)        : DEL 
@@ -233,7 +245,8 @@ account      / account.invoice.tax      / tax_amount (float)            : DEL
 account      / account.invoice.tax      / tax_code_id (many2one)        : DEL relation: account.tax.code
 
 account      / account.invoice.tax      / tax_id (many2one)             : NEW relation: account.tax
-# TODO: A mapping function should provide the transition from tax_code_ids to tax_ids. Use this function to get the new tax_id from the old tax_code_id.
+# TODO: A mapping function should provide the transition from tax_code_ids to tax_ids. 
+Use this function to get the new tax_id from the old tax_code_id.
 
 
 #### FIELDS IN MODEL ACCOUNT.JOURNAL ####
@@ -267,7 +280,7 @@ account      / account.journal          / inbound_payment_method_ids (many2many)
 account      / account.journal          / internal_account_id (many2one): DEL relation: account.account
 
 account      / account.journal          / outbound_payment_method_ids (many2many): NEW relation: account.payment.method
-# TODO: Post migration script: Set 'manual' and 'check' if the value of tield 'type' in v8 was 'cash', 'bank'
+# TODO: Post migration script: Set 'manual' and 'check' if the value of field 'type' in v8 was 'cash', 'bank'
 
 account      / account.journal          / refund_sequence (boolean)     : NEW 
 # NOTHING TO DO
@@ -287,6 +300,7 @@ purchase_refund -> purchase
 sale_refund => sale
 situation => general
 # This can be confusing, becasue in reality these journals are not useful anymore in Odoo 9.
+# Done : done in post script
 
 account      / account.journal          / user_id (many2one)            : DEL relation: res.users
 account      / account.journal          / with_last_closing_balance (boolean): DEL 
