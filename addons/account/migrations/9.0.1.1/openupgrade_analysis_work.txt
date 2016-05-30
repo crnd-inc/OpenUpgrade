@@ -26,7 +26,8 @@ account      / account.account          / tag_ids (many2many)           : NEW re
 # NOTHING TO DO: New functionality added.
 
 account      / account.account          / type (selection)              : DEL required: required, selection_keys: ['closed', 'consolidation', 'liquidity', 'other', 'payable', 'receivable', 'view'], req_default: other
-# TODO: delete accounts type having 'view' 
+# TODO: delete accounts type having 'view'
+ 
 account      / account.account          / user_type (many2one)          : was renamed to user_type_id [nothing to to]
 
 
@@ -57,11 +58,13 @@ account      / account.account.template / user_type (many2one)          : was re
 
 account      / account.account.type     / close_method (selection)      : DEL required: required, selection_keys: ['balance', 'detail', 'none', 'unreconciled'], req_default: none
 # TODO: Rename to 'None' in order to avoid losing the values.
+# Done : done in pre-migration script
 
 account      / account.account.type     / code (char)                   : DEL required: required
 
 account      / account.account.type     / include_initial_balance (boolean): NEW 
 # TODO: If the close_method was 'none', then set to 'False', otherwise set to 'True'
+# Done : done in post-migration script
 
 account      / account.account.type     / type (selection)              : NEW required: required, selection_keys: ['liquidity', 'other', 'payable', 'receivable'], req_default: other
 # TODO: Based on the combination used (see above)
@@ -242,8 +245,8 @@ account      / account.invoice.tax      / base (float)                  : DEL
 account      / account.invoice.tax      / base_amount (float)           : DEL 
 account      / account.invoice.tax      / base_code_id (many2one)       : DEL relation: account.tax.code
 account      / account.invoice.tax      / tax_amount (float)            : DEL 
-account      / account.invoice.tax      / tax_code_id (many2one)        : DEL relation: account.tax.code
 
+account      / account.invoice.tax      / tax_code_id (many2one)        : DEL relation: account.tax.code
 account      / account.invoice.tax      / tax_id (many2one)             : NEW relation: account.tax
 # TODO: A mapping function should provide the transition from tax_code_ids to tax_ids. 
 Use this function to get the new tax_id from the old tax_code_id.
@@ -262,6 +265,7 @@ account      / account.journal          / bank_account_id (many2one)    : NEW re
 
 account      / account.journal          / bank_statements_source (selection): NEW selection_keys: ['manual']
 # TODO: Post migration script: Default to 'manual'
+# Done : set to 'manual' in Post migration script.
 
 account      / account.journal          / cash_control (boolean)        : DEL 
 account      / account.journal          / cashbox_line_ids (one2many)   : DEL relation: account.journal.cashbox.line
@@ -270,6 +274,7 @@ account      / account.journal          / currency (many2one)           : was re
 
 account      / account.journal          / display_on_footer (boolean)   : NEW 
 # TODO: Post migration script: Default to 'False'
+# Done : set to false in Post migration script.
 
 account      / account.journal          / entry_posted (boolean)        : DEL 
 account      / account.journal          / groups_id (many2many)         : DEL relation: res.groups
@@ -281,6 +286,7 @@ account      / account.journal          / internal_account_id (many2one): DEL re
 
 account      / account.journal          / outbound_payment_method_ids (many2many): NEW relation: account.payment.method
 # TODO: Post migration script: Set 'manual' and 'check' if the value of field 'type' in v8 was 'cash', 'bank'
+#############################################
 
 account      / account.journal          / refund_sequence (boolean)     : NEW 
 # NOTHING TO DO
@@ -309,10 +315,10 @@ account      / account.journal          / with_last_closing_balance (boolean): D
 #### FIELDS IN MODEL ACCOUNT.MOVE ####
 
 account      / account.move             / balance (float)               : DEL 
-account      / account.move             / line_id (one2many)            : DEL relation: account.move.line
 
+account      / account.move             / line_id (one2many)            : DEL relation: account.move.line
 account      / account.move             / line_ids (one2many)           : NEW relation: account.move.line
-# TODO: Post migration script: Migrate from line_id (the field was renamed)
+# Nothing To Do : ORM will handle it.
 
 account      / account.move             / period_id (many2one)          : DEL relation: account.period, required: required, req_default: function
 account      / account.move             / rate_diff_partial_rec_id (many2one): NEW relation: account.partial.reconcile
@@ -357,6 +363,7 @@ account      / account.move.line        / tax_line_id (many2one)        : NEW re
 #### FIELDS IN MODEL ACCOUNT.OPERATION.TEMPLATE ####
 Comes from model 'account.statement.operation.template'
 Now this model is company dependent. So will need to duplicate the records for each company
+####################################################
 
 account      / account.operation.template / account_id (many2one)         : NEW relation: account.account
 # TODO: Move from 'account.statement.operation.template'
@@ -366,6 +373,7 @@ account      / account.operation.template / amount (float)                : NEW 
 
 account      / account.operation.template / amount_type (selection)       : NEW required: required, selection_keys: ['fixed', 'percentage'], req_default: percentage
 # TODO: Move from 'account.statement.operation.template'. Value 'percentage_of_total' => 'percentage'
+# Done : done in post script
 
 account      / account.operation.template / analytic_account_id (many2one): NEW relation: account.analytic.account
 # TODO: Move from 'account.statement.operation.template'.
@@ -374,8 +382,13 @@ account      / account.operation.template / company_id (many2one)         : NEW 
 
 account      / account.operation.template / has_second_line (boolean)     : NEW 
 account      / account.operation.template / journal_id (many2one)         : NEW relation: account.journal
+
 account      / account.operation.template / label (char)                  : NEW 
+# TODO: Move from 'account.statement.operation.template'.
+
 account      / account.operation.template / name (char)                   : NEW required: required
+# TODO: Move from 'account.statement.operation.template'.
+
 account      / account.operation.template / second_account_id (many2one)  : NEW relation: account.account
 account      / account.operation.template / second_amount (float)         : NEW required: required, req_default: 100.0
 account      / account.operation.template / second_amount_type (selection): NEW required: required, selection_keys: ['fixed', 'percentage'], req_default: percentage
@@ -405,7 +418,8 @@ account      / account.partial.reconcile / debit_move_id (many2one)      : NEW r
 #### FIELDS IN MODEL ACCOUNT.PAYMENT ####
 This a new model in Odoo 9. We do not need to migrate anything from 8 to convert it to an account payment. 
 In Odoo 8 the payments to customers or suppliers could be done in different ways, such as using vouchers or manual journal entries. 
-It is fine to just migrate the journal entries corresponding to payments, not creating account.payment records, because Odoo 9 will recognize two AR/AP reconciled entries as a payment in the invoice.
+It is fine to just migrate the journal entries corresponding to payments, not creating account.payment records, 
+because Odoo 9 will recognize two AR/AP reconciled entries as a payment in the invoice.
 
 account      / account.payment          / amount (float)                : NEW required: required
 account      / account.payment          / communication (char)          : NEW 
@@ -447,9 +461,12 @@ account      / account.tax              / applicable_type (selection)   : DEL re
 account      / account.tax              / base_code_id (many2one)       : DEL relation: account.tax.code
 account      / account.tax              / base_sign (float)             : DEL 
 account      / account.tax              / child_depend (boolean)        : DEL 
+
 account      / account.tax              / child_ids (one2many)          : DEL relation: account.tax
 account      / account.tax              / children_tax_ids (many2many)  : NEW relation: account.tax
 # TODO: Logic to move from child_ids to children_tax_ids
+# Done : done in post-migration script
+
 account      / account.tax              / domain (char)                 : DEL 
 account      / account.tax              / parent_id (many2one)          : DEL relation: account.tax
 account      / account.tax              / python_applicable (text)      : module is now 'account_tax_python' ('account')
@@ -467,8 +484,11 @@ account      / account.tax              / tax_sign (float)              : DEL
 account      / account.tax              / type (selection)              : selection_keys is now '['division', 'fixed', 'group', 'percent']' ('['balance', 'code', 'fixed', 'none', 'percent']')
 account      / account.tax              / type (selection)              : was renamed to amount_type [nothing to to]
 # TODO: Post migration script: In v8, if child_depend == True, then in v9, amount_type='group'
+# Done : done in post-migration script
+
 account      / account.tax              / type_tax_use (selection)      : selection_keys is now '['none', 'purchase', 'sale']' ('['all', 'purchase', 'sale']')
-# TODO: post-migration script: convert 'none' to 'all'
+# TODO: post-migration script: convert 'all' to 'none'
+# Done : done in post-migration script
 
 #### FIELDS IN MODEL ACCOUNT.TAX.GROUP ####
 This is a new model in Odoo 9. Not used at all, except in l10n_co.
@@ -478,7 +498,9 @@ account      / account.tax.group        / sequence (integer)            : NEW
 
 
 #### FIELDS IN MODEL ACCOUNT.TAX.TEMPLATE ####
-The tax template now depends on company. So in case of multiple companies, it is necessary to replicate the account.tax.template for every record.
+The tax template now depends on company. So in case of multiple companies, 
+it is necessary to replicate the account.tax.template for every record.
+
 Generic methods applicable for account.account and account.template, to do in post-migration
 - Compute tag_ids:
 We should provide a generic method that converts parent taxes into tags, and tag leaf taxes with these tags. Then assign these tags to the tax being migrated.
@@ -490,6 +512,7 @@ account      / account.tax.template     / active (boolean)              : NEW
 
 account      / account.tax.template     / amount_type (selection)       : NEW required: required, selection_keys: ['division', 'fixed', 'group', 'percent'], req_default: percent
 # TODO: Post migration script: In v8, if child_depend == True, then in v9, amount_type='group'
+# Done : done in post-migration script
 
 account      / account.tax.template     / analytic (boolean)            : NEW 
 # NOTHING TO DO
@@ -501,9 +524,12 @@ account      / account.tax.template     / child_depend (boolean)        : DEL
 
 account      / account.tax.template     / children_tax_ids (many2many)  : NEW relation: account.tax.template
 #TODO: Post-migration script: Look for any records that have the current as parent_id. These will be the children
+# Done : done in post-migration script
 
 account      / account.tax.template     / company_id (many2one)         : NEW relation: res.company, required: required, req_default: function
 #TODO: See initial notes.
+###############################################################
+
 
 account      / account.tax.template     / domain (char)                 : DEL 
 account      / account.tax.template     / parent_id (many2one)          : DEL relation: account.tax.template
@@ -516,13 +542,14 @@ account      / account.tax.template     / ref_tax_code_id (many2one)    : DEL re
 account      / account.tax.template     / ref_tax_sign (float)          : DEL 
 
 account      / account.tax.template     / tag_ids (many2many)           : NEW relation: account.account.tag
-#TODO: Call method Compute tag_ids as described above
+# NOTHING TO DO: New functionality added.
 
 account      / account.tax.template     / tax_code_id (many2one)        : DEL relation: account.tax.code.template
 account      / account.tax.template     / tax_sign (float)              : DEL 
 account      / account.tax.template     / type (selection)              : DEL required: required, selection_keys: ['balance', 'code', 'fixed', 'none', 'percent'], req_default: percent
 account      / account.tax.template     / type_tax_use (selection)      : selection_keys is now '['none', 'purchase', 'sale']' ('['all', 'purchase', 'sale']')
-#TODO: 'none' -> 'all'
+#TODO: 'all' -> 'none'
+# Done : done in post-migration script
 
 #### FIELDS IN MODEL IR.SEQUENCE ####
 
@@ -538,10 +565,11 @@ account      / product.template         / property_account_income (many2one): wa
 #### FIELDS IN MODEL RES.COMPANY ####
 
 account      / res.company              / accounts_code_digits (integer): NEW 
-# TODO: May need to read what is the longest length in the accounts beloning to that company, to determine the number of digits.
+# TODO: May need to read what is the longest length in the accounts belonging to that company, to determine the number of digits.
 
 account      / res.company              / anglo_saxon_accounting (boolean): NEW 
 # TODO: Need to determine if the anglo_saxon_accounting module was installed in the previous version, then set it to True.
+# Done : done in post-migration script
 
 account      / res.company              / bank_account_code_prefix (char): NEW 
 # NOTHING TO DO
@@ -553,7 +581,8 @@ account      / res.company              / cash_account_code_prefix (char): NEW
 # NOTHING TO DO
 
 account      / res.company              / chart_template_id (many2one)  : NEW relation: account.chart.template
-# ISSUE: Previously the account.chart.template was not company specific. How will we know which one applies now, if multiple are installed in the system?
+# ISSUE: Previously the account.chart.template was not company specific. 
+How will we know which one applies now, if multiple are installed in the system?
 
 account      / res.company              / currency_exchange_journal_id (many2one): NEW relation: account.journal
 # NOTHING TO DO
