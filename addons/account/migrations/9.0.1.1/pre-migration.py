@@ -47,8 +47,3 @@ def migrate(cr, version):
     openupgrade.rename_tables(cr, table_renames)
     openupgrade.rename_columns(cr, column_renames)
     openupgrade.copy_columns(cr, column_copies)
-    
-    # delete accounts of type 'view'
-    cr.execute("""
-    DELETE from account_account WHERE type = 'view'
-    """)

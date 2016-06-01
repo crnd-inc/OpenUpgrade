@@ -43,8 +43,53 @@ def migrate(cr, version):
     map_type_tax_use(cr)
     map_type_tax_use_template(cr)
     map_journal_state(cr)
+    
+    cr.execute("""
+    select id from account_chart_template
+    """)
+    chart_ids = cr.dictfetchall()
+    
+    cr.execute("""
+    select id from res_company
+    """)
+    company_ids = cr.dictfetchall()
+    list_of_companies = company_ids[1:]
+    
+    cr.execute("""
+    select count(id) from res_company
+    """)
+    company = cr.fetchone()
+    no_of_companies = int(company[0])
+    company_count = no_of_companies - 1
+    
+    cr.execute("""
+    select count(id) from account_chart_template
+    """)
+    chart = cr.fetchone()
+    chart_template_count = int(chart[0])
+    
+    cr.execute("""
+    UPDATE account_chart_template SET company_id = r.id 
+    from res_company r
+    """)
 
-
+    for n in range(company_count):
+        company_id = list_of_companies[n]['id']
+        for m in range(chart_template_count):
+            chart_id = chart_ids[m]['id']
+            cr.execute("""
+            INSERT INTO account_chart_template (property_account_receivable_id, property_account_payable_id, 
+            property_account_expense_categ_id, property_account_income_categ_id, property_account_expense_id, 
+            property_account_income_id, transfer_account_id, create_uid, write_uid, create_date, write_date, 
+            name, code_digits, visible, currency_id, complete_tax_set, account_root_id, tax_code_root_id, 
+            bank_account_view_id, company_id) 
+            SELECT property_account_receivable_id, property_account_payable_id, 
+            property_account_expense_categ_id, property_account_income_categ_id, property_account_expense_id, 
+            property_account_income_id, transfer_account_id, create_uid, write_uid, create_date, write_date, 
+            name, code_digits, visible, currency_id, complete_tax_set, account_root_id, tax_code_root_id, 
+            bank_account_view_id, %s from account_chart_template where id = %s
+            """ %(company_id, chart_id))
+    
     # If the close_method is 'none', then set to 'False', otherwise set to 'True'
     cr.execute("""
     UPDATE account_account_type SET include_initial_balance =  CASE
@@ -107,11 +152,4 @@ def migrate(cr, version):
     'account_bank_statement_line',
     'journal_entry_ids',
     openupgrade.get_legacy_name('journal_entry_id'))
-
-#    cr.execute("""
-#    insert into account_cashbox_line (coin_value, number) select pieces, 
-#    COALESCE(%(opening)s,%(closing)s,123) 
-#    from account_cashbox_line
-#    """%{'opening' : openupgrade.get_legacy_name('number_opening'),
-#         'closing' : openupgrade.get_legacy_name('number_closing')})
 
