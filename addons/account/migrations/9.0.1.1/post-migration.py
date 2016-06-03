@@ -36,14 +36,11 @@ def map_journal_state(cr):
         openupgrade.get_legacy_name('type'), 'type',
         [('purchase_refund', 'purchase'), ('sale_refund', 'sale'), ('situation', 'general')],
         table='account_journal', write='sql')
-
-@openupgrade.migrate()
-def migrate(cr, version):
-    map_bank_state(cr)
-    map_type_tax_use(cr)
-    map_type_tax_use_template(cr)
-    map_journal_state(cr)
     
+def account_chart_tax_template(cr):
+
+############################## Account CHART template ########################
+
     cr.execute("""
     select id from account_chart_template
     """)
@@ -89,6 +86,67 @@ def migrate(cr, version):
             name, code_digits, visible, currency_id, complete_tax_set, account_root_id, tax_code_root_id, 
             bank_account_view_id, %s from account_chart_template where id = %s
             """ %(company_id, chart_id))
+
+############################## Account TAX template ########################
+    
+    cr.execute("""
+    SELECT COUNT(chart_template_id), chart_template_id FROM account_tax_template GROUP BY chart_template_id
+    """)
+    chart_template = cr.dictfetchall()
+    
+    tax_ids = []
+    for x in range(len(chart_template)):
+        first_count = chart_template[x]['chart_template_id']
+        cr.execute("""
+        SELECT id FROM account_tax_template WHERE chart_template_id = %s
+        """ % first_count)
+        tax_ids.append(cr.dictfetchall())
+    
+    other_chart_templates = []
+    tax_count = []
+    for x in range(len(chart_template)):
+        template_id = chart_template[x]['chart_template_id']
+        template_count_long = chart_template[x]['count']
+        tax_count.append(int(template_count_long))
+        # Assuming there are no duplicate chart template with same name and bank_account_view_id
+        cr.execute("""
+        SELECT id, company_id FROM account_chart_template WHERE name = (SELECT name FROM account_chart_template WHERE id=%(x)s) 
+        AND bank_account_view_id = (SELECT bank_account_view_id FROM account_chart_template WHERE id=%(x)s) AND id <> %(x)s
+        """ %{'x' : template_id})
+        other_chart_template = cr.dictfetchall()
+        other_chart_templates.append(other_chart_template)
+
+    cr.execute("""
+    UPDATE account_tax_template t SET company_id = c.company_id FROM account_chart_template c WHERE t.chart_template_id = c.id
+    """)
+    
+    for f,k in zip(range(len(tax_count)),range(len(tax_ids))):
+        for i in range(tax_count[f]):
+            tax_id = tax_ids[k][i]['id']
+            for n in range(company_count):
+                comp_id = other_chart_templates[k][n]['company_id']
+                chart_tmp_id = other_chart_templates[k][n]['id']
+                cr.execute("""
+                INSERT INTO account_tax_template (name, chart_template_id, company_id, 
+                create_uid, write_uid, create_date, write_date, child_depend, include_base_amount, 
+                account_id, refund_account_id, active, price_include, description, 
+                python_applicable, python_compute, 
+                type_tax_use, type, applicable_type, amount, sequence, amount_type) 
+                SELECT name, %(a)s, %(b)s, 
+                create_uid, write_uid, create_date, write_date, child_depend, include_base_amount, 
+                account_id, refund_account_id, active, price_include, description, 
+                python_applicable, python_compute, 
+                type_tax_use, type, applicable_type, amount, sequence , 'percent'
+                FROM account_tax_template WHERE id = %(c)s
+                """ %{'a' : chart_tmp_id, 'b' : comp_id, 'c' : tax_id})
+
+@openupgrade.migrate()
+def migrate(cr, version):
+    map_bank_state(cr)
+    map_type_tax_use(cr)
+    map_type_tax_use_template(cr)
+    map_journal_state(cr)
+    account_chart_tax_template(cr)
     
     # If the close_method is 'none', then set to 'False', otherwise set to 'True'
     cr.execute("""
