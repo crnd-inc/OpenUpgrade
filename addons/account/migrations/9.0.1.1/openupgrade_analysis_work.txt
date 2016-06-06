@@ -129,7 +129,7 @@ account      / account.bank.statement.line / journal_entry_ids (one2many)  : NEW
 # TODO: Update the move lines involved in bank statement lines with the statement. 
 # This changes from many2one to one2many, so the statement_id is now in the move line. 
 # In PRE, rename journal_entry_id to 'None'. In POS, use method m2o_to_x2m to translate many2one to one2many.
-# Done : done with using the method m2o_to_x2m
+# Done : done with using the method m2o_to_x2m method
 
 #### FIELDS IN MODEL ACCOUNT.CASHBOX.LINE ####
 
@@ -149,6 +149,7 @@ account      / account.cashbox.line     / number (integer)              : NEW
 
 #### FIELDS IN MODEL ACCOUNT.CHART.TEMPLATE ####
 The chart template is now company-specific. We may need to replicate all the installed chart templates for each installed company.
+# Done : done in post-migration script
 
 account      / account.chart.template   / account_ids (one2many)        : NEW relation: account.account.template
 # Nothing to do
@@ -160,7 +161,9 @@ account      / account.chart.template   / cash_account_code_prefix (char): NEW
 # Nothing to do
 
 account      / account.chart.template   / company_id (many2one)         : NEW relation: res.company
-# Nothing to do. We consider all chart templates as shared for all companies.
+# TODO: See initial notes.
+# Done : done in post-migration script
+
 
 account      / account.chart.template   / currency_id (many2one)        : now required
 # TODO: For those that are not set, obtain the currency of the first company.
@@ -363,7 +366,7 @@ account      / account.move.line        / tax_line_id (many2one)        : NEW re
 #### FIELDS IN MODEL ACCOUNT.OPERATION.TEMPLATE ####
 Comes from model 'account.statement.operation.template'
 Now this model is company dependent. So will need to duplicate the records for each company
-####################################################
+#############################################
 
 account      / account.operation.template / account_id (many2one)         : NEW relation: account.account
 # TODO: Move from 'account.statement.operation.template'
@@ -500,6 +503,7 @@ account      / account.tax.group        / sequence (integer)            : NEW
 #### FIELDS IN MODEL ACCOUNT.TAX.TEMPLATE ####
 The tax template now depends on company. So in case of multiple companies, 
 it is necessary to replicate the account.tax.template for every record.
+# Done : done in post-migration script
 
 Generic methods applicable for account.account and account.template, to do in post-migration
 - Compute tag_ids:
@@ -527,9 +531,8 @@ account      / account.tax.template     / children_tax_ids (many2many)  : NEW re
 # Done : done in post-migration script
 
 account      / account.tax.template     / company_id (many2one)         : NEW relation: res.company, required: required, req_default: function
-#TODO: See initial notes.
-###############################################################
-
+# TODO: See initial notes.
+# Done : done in post-migration script
 
 account      / account.tax.template     / domain (char)                 : DEL 
 account      / account.tax.template     / parent_id (many2one)          : DEL relation: account.tax.template

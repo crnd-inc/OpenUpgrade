@@ -39,7 +39,7 @@ def map_journal_state(cr):
     
 def account_chart_tax_template(cr):
 
-############################## Account CHART template ########################
+    # Making Account Chart Template Company-Specific
 
     cr.execute("""
     select id from account_chart_template
@@ -87,8 +87,8 @@ def account_chart_tax_template(cr):
             bank_account_view_id, %s from account_chart_template where id = %s
             """ %(company_id, chart_id))
 
-############################## Account TAX template ########################
-    
+    # Making Account Tax Template Company-Specific
+
     cr.execute("""
     SELECT COUNT(chart_template_id), chart_template_id FROM account_tax_template GROUP BY chart_template_id
     """)
@@ -108,7 +108,7 @@ def account_chart_tax_template(cr):
         template_id = chart_template[x]['chart_template_id']
         template_count_long = chart_template[x]['count']
         tax_count.append(int(template_count_long))
-        # Assuming there are no duplicate chart template with same name and bank_account_view_id
+        # Assuming there are no duplicate chart template having same name and bank_account_view_id
         cr.execute("""
         SELECT id, company_id FROM account_chart_template WHERE name = (SELECT name FROM account_chart_template WHERE id=%(x)s) 
         AND bank_account_view_id = (SELECT bank_account_view_id FROM account_chart_template WHERE id=%(x)s) AND id <> %(x)s
@@ -140,6 +140,77 @@ def account_chart_tax_template(cr):
                 FROM account_tax_template WHERE id = %(c)s
                 """ %{'a' : chart_tmp_id, 'b' : comp_id, 'c' : tax_id})
 
+    # Making Account Statement Operation Company-Specific
+
+    cr.execute("""
+    SELECT id FROM account_operation_template
+    """)
+    statement_ids = cr.dictfetchall()
+
+    cr.execute("""
+    SELECT count(id) FROM account_operation_template
+    """)
+    statements = cr.fetchone()
+    statement_template_count = int(statements[0])
+
+    cr.execute("""
+    UPDATE account_operation_template SET company_id = r.id 
+    FROM res_company r
+    """)
+#
+    for n in range(company_count):
+        company_id = list_of_companies[n]['id']
+        for m in range(statement_template_count):
+            op_id = statement_ids[m]['id']
+            cr.execute("""
+            INSERT INTO account_operation_template (name, sequence, account_id, tax_id, 
+            company_id, amount_type, amount, second_amount_type, second_amount, label, 
+            create_uid, write_uid, create_date, write_date)
+            SELECT name, sequence, account_id, tax_id, %s, amount_type, 
+            amount, second_amount_type, second_amount, label, 
+            create_uid, write_uid, create_date, write_date FROM 
+            account_operation_template WHERE id = %s
+            """ %(company_id, op_id))
+
+def parent_id_to_m2m(cr):
+
+    # Get list of taxes having parent tax. 
+    cr.execute("""
+    SELECT id, parent_id FROM account_tax_template WHERE parent_id IS NOT NULL
+    """)
+
+    list_of_taxes = cr.dictfetchall()
+
+    child_tax_ids = []
+    parent_tax_ids = []
+
+    for m in list_of_taxes:
+        # Retrieving child tax templates.
+        cr.execute("""
+        SELECT id, company_id FROM account_tax_template WHERE name = (SELECT name FROM account_tax_template WHERE id=%(child)s) 
+        AND id <> %(child)s ORDER BY company_id
+        """ % {'child' : m['id']})
+
+        child_tax = cr.dictfetchall()
+        child_tax_ids.append(child_tax)
+
+        # Retrieving parent tax templates. 
+        cr.execute("""
+        SELECT id, company_id FROM account_tax_template WHERE name = (SELECT name FROM account_tax_template WHERE id=%(parent)s) 
+        AND id <> %(parent)s ORDER BY company_id
+        """% {'parent' : m['parent_id']})
+
+        parent_tax = cr.dictfetchall()
+        parent_tax_ids.append(parent_tax)
+
+    # Inserting parent and child tax records into m2m relationship 
+    for a in range(len(child_tax_ids)):
+        for x,y in zip(child_tax_ids[a],parent_tax_ids[a]):
+            cr.execute("""
+            INSERT INTO account_tax_template_filiation_rel (parent_tax, child_tax) 
+            VALUES (%(parent_id)s, %(child_id)s)
+            """ %{'parent_id' : y['id'], 'child_id' : x['id']})
+
 @openupgrade.migrate()
 def migrate(cr, version):
     map_bank_state(cr)
@@ -147,7 +218,8 @@ def migrate(cr, version):
     map_type_tax_use_template(cr)
     map_journal_state(cr)
     account_chart_tax_template(cr)
-    
+    parent_id_to_m2m(cr)
+
     # If the close_method is 'none', then set to 'False', otherwise set to 'True'
     cr.execute("""
     UPDATE account_account_type SET include_initial_balance =  CASE
@@ -210,4 +282,3 @@ def migrate(cr, version):
     'account_bank_statement_line',
     'journal_entry_ids',
     openupgrade.get_legacy_name('journal_entry_id'))
-
