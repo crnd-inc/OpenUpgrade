@@ -10,10 +10,6 @@ column_renames = {
     'account_bank_statement': [
         ('closing_date', 'date_done'),
     ],
-    'account_cashbox_line': [
-        ('number_opening', None),
-        ('number_closing', None),
-    ],
     'account_account_type': [
         ('close_method', None),
     ],

@@ -140,7 +140,7 @@ def account_chart_tax_template(cr):
                 FROM account_tax_template WHERE id = %(c)s
                 """ %{'a' : chart_tmp_id, 'b' : comp_id, 'c' : tax_id})
 
-    # Making Account Statement Operation Company-Specific
+    # Making Account Statement Operation Template Company-Specific
 
     cr.execute("""
     SELECT id FROM account_operation_template
@@ -211,6 +211,64 @@ def parent_id_to_m2m(cr):
             VALUES (%(parent_id)s, %(child_id)s)
             """ %{'parent_id' : y['id'], 'child_id' : x['id']})
 
+def cashbox(cr):
+
+    cr.execute("""
+    SELECT distinct bank_statement_id FROM account_cashbox_line
+    """)
+
+    bank_statement = cr.dictfetchall()
+
+    for m in range(len(bank_statement)):
+
+        bank_statement_id = bank_statement[m]['bank_statement_id']
+
+        cr.execute("""
+        SELECT pieces, number_opening FROM account_cashbox_line WHERE number_opening IS NOT NULL AND number_opening != 0 AND bank_statement_id  = %s
+        """ %bank_statement_id)
+
+        opening_cashbox = cr.dictfetchall()
+
+        cr.execute("""
+        INSERT INTO account_bank_statement_cashbox (create_date) VALUES (NULL) RETURNING id
+        """)
+
+        cashbox_id = cr.fetchone()[0]
+
+        for x in opening_cashbox:
+            opening_number = x['number_opening']
+            pieces = x['pieces']
+            cr.execute("""
+            INSERT INTO account_cashbox_line (cashbox_id, number, coin_value) VALUES (%(cash_id)s, %(opening_number)s, %(pieces)s) 
+            """ %{'opening_number' : opening_number, 'pieces' : pieces, 'cash_id' : cashbox_id})
+
+        cr.execute("""
+        UPDATE account_bank_statement SET cashbox_start_id = %s WHERE id = %s
+        """ %(cashbox_id, bank_statement_id))
+
+        cr.execute("""
+        SELECT pieces, number_closing FROM account_cashbox_line WHERE number_closing IS NOT NULL AND bank_statement_id  = %s
+        """ %bank_statement_id)
+
+        closing_cashbox = cr.dictfetchall()
+
+        cr.execute("""
+        INSERT INTO account_bank_statement_cashbox (create_date) VALUES (NULL) RETURNING id
+        """)
+
+        cashbox_id = cr.fetchone()[0]
+
+        for x in closing_cashbox:
+            closing_number = x['number_closing']
+            pieces = x['pieces']
+            cr.execute("""
+            INSERT INTO account_cashbox_line (cashbox_id, number, coin_value) VALUES (%(cash_id)s, %(closing_number)s, %(pieces)s) 
+            """ %{'closing_number' : closing_number, 'pieces' : pieces, 'cash_id' : cashbox_id})
+
+        cr.execute("""
+        UPDATE account_bank_statement SET cashbox_end_id = %s WHERE id = %s
+        """ %(cashbox_id, bank_statement_id))
+
 @openupgrade.migrate()
 def migrate(cr, version):
     map_bank_state(cr)
@@ -219,6 +277,7 @@ def migrate(cr, version):
     map_journal_state(cr)
     account_chart_tax_template(cr)
     parent_id_to_m2m(cr)
+    cashbox(cr)
 
     # If the close_method is 'none', then set to 'False', otherwise set to 'True'
     cr.execute("""
