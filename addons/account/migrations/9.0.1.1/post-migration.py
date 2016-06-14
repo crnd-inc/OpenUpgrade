@@ -36,8 +36,8 @@ def map_journal_state(cr):
         openupgrade.get_legacy_name('type'), 'type',
         [('purchase_refund', 'purchase'), ('sale_refund', 'sale'), ('situation', 'general')],
         table='account_journal', write='sql')
-    
-def account_chart_tax_template(cr):
+
+def account_templates(cr):
 
     # Making Account Chart Template Company-Specific
 
@@ -268,6 +268,24 @@ def cashbox(cr):
         cr.execute("""
         UPDATE account_bank_statement SET cashbox_end_id = %s WHERE id = %s
         """ %(cashbox_id, bank_statement_id))
+        
+def account_properties(cr):
+    # Handle account properties as their names are changed.
+    cr.execute("""
+            update ir_property set name = 'property_account_payable_id', 
+            fields_id = (select id from ir_model_fields where model 
+            = 'res.partner' and name = 'property_account_payable_id') 
+            where name = 'property_account_payable' and (res_id like 
+            'res.partner%' or res_id is null)
+            """)
+    cr.execute("""
+            update ir_property set fields_id = (select id from 
+            ir_model_fields where model = 'res.partner' and 
+            name = 'property_account_receivable_id'), name = 
+            'property_account_receivable_id' where 
+            name = 'property_account_receivable' and (res_id like 
+            'res.partner%' or res_id is null)
+            """)
 
 @openupgrade.migrate()
 def migrate(cr, version):
@@ -275,9 +293,10 @@ def migrate(cr, version):
     map_type_tax_use(cr)
     map_type_tax_use_template(cr)
     map_journal_state(cr)
-    account_chart_tax_template(cr)
+    account_templates(cr)
     parent_id_to_m2m(cr)
     cashbox(cr)
+    account_properties(cr)
 
     # If the close_method is 'none', then set to 'False', otherwise set to 'True'
     cr.execute("""
