@@ -15,7 +15,7 @@ def set_invoice_policy(cr):
     openupgrade.logged_query(cr, """
     UPDATE product_template 
     SET invoice_policy = 'order' 
-    WHERE invoice_policy is NULL;
+    WHERE invoice_policy IS NULL;
     """)
 
 def set_track_service(cr):
@@ -23,7 +23,7 @@ def set_track_service(cr):
     openupgrade.logged_query(cr, """
     UPDATE product_template 
     SET track_service = 'manual' 
-    WHERE track_service is NULL;
+    WHERE track_service IS NULL;
     """)
 
 def map_order_state(cr):
@@ -40,7 +40,7 @@ def map_order_state(cr):
 
 def product_id_env(env):
     product = env['product.product'].create({'name': 'Service Product', 'type': 'service'})
-    env.cr.execute("""update sale_order_line set product_id = %s where product_id is null""" % product.id)
+    env.cr.execute("""UPDATE sale_order_line SET product_id = %s WHERE product_id IS NULL""" % product.id)
 
 @openupgrade.migrate()
 def migrate(cr, version):
