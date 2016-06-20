@@ -14,10 +14,9 @@ def map_order_state(cr):
     # Mapping values of state field for purchase.order
     openupgrade.map_values(
         cr, openupgrade.get_legacy_name('state'), 'state', 
-        [('approved', 'purchase'), ('bid', 'sent'), ('cancel', 'cancel'),
-         ('confirmed', 'to approve'), ('done', 'done'), ('draft', 'draft'),
-         ('except_invoice', 'purchase'), ('except_picking', 'purchase'),
-         ('sent', 'sent')],
+        [('approved', 'purchase'), ('bid', 'sent'), 
+         ('confirmed', 'to approve'), ('draft', 'draft'),
+         ('except_invoice', 'purchase'), ('except_picking', 'purchase')],
         table='purchase_order')
 
 def map_order_line_state(cr):

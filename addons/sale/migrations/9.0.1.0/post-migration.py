@@ -15,7 +15,7 @@ def set_invoice_policy(cr):
     openupgrade.logged_query(cr, """
     UPDATE product_template 
     SET invoice_policy = 'order' 
-    WHERE invoice_policy is NULL;
+    WHERE invoice_policy IS NULL;
     """)
 
 def set_track_service(cr):
@@ -23,24 +23,24 @@ def set_track_service(cr):
     openupgrade.logged_query(cr, """
     UPDATE product_template 
     SET track_service = 'manual' 
-    WHERE track_service is NULL;
+    WHERE track_service IS NULL;
     """)
 
 def map_order_state(cr):
     # Mapping values for state field in sale.order and sale.order.line
     openupgrade.map_values(
         cr, openupgrade.get_legacy_name('state'), 'state', 
-        [('draft', 'draft'), ('sent', 'sent'), ('cancel', 'cancel'), ('waiting_date', 'sale'), ('progress', 'sale'), ('manual', 'sale'), ('shipping_except', 'sale'), ('invoice_except', 'sale'), ('done', 'done')],
+        [('waiting_date', 'sale'), ('progress', 'sale'), ('manual', 'sale'), ('shipping_except', 'sale'), ('invoice_except', 'sale')],
         table='sale_order')
 
     openupgrade.map_values(
         cr, openupgrade.get_legacy_name('state'), 'state', 
-        [('cancel', 'cancel'), ('draft', 'draft'), ('confirmed', 'sale'), ('exception', 'sale'), ('done', 'done')],
+        [('confirmed', 'sale'), ('exception', 'sale')],
         table='sale_order_line')
 
 def product_id_env(env):
     product = env['product.product'].create({'name': 'Service Product', 'type': 'service'})
-    env.cr.execute("""update sale_order_line set product_id = %s where product_id is null""" % product.id)
+    env.cr.execute("""UPDATE sale_order_line SET product_id = %s WHERE product_id IS NULL""" % product.id)
 
 @openupgrade.migrate()
 def migrate(cr, version):
