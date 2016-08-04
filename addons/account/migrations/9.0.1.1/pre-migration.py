@@ -72,8 +72,8 @@ def migrate_properties(cr):
 
 
 def install_account_tax_python(cr):
-    cr.execute(
-        "update ir_module_module set state='to install' "
+    openupgrade.logged_query(
+        cr, "update ir_module_module set state='to install' "
         "where name='account_tax_python' "
         "and state in ('uninstalled', 'to remove') "
         "and exists (select id FROM account_tax where type = 'code')")
