@@ -71,6 +71,14 @@ def migrate_properties(cr):
             """.format(name_v8=name_v8, name_v9=name_v9))
 
 
+def install_account_tax_python(cr):
+    cr.execute(
+        "update ir_module_module set state='to install' "
+        "where name='account_tax_python' "
+        "and state in ('uninstalled', 'to remove') "
+        "and exists (select id FROM account_tax where type = 'code')")
+
+
 @openupgrade.migrate()
 def migrate(cr, version):
     # 9.0 introduces a constraint enforcing this
@@ -82,3 +90,4 @@ def migrate(cr, version):
     openupgrade.rename_columns(cr, column_renames)
     openupgrade.copy_columns(cr, column_copies)
     migrate_properties(cr)
+    install_account_tax_python(cr)
