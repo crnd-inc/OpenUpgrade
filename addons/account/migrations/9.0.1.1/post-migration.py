@@ -36,7 +36,7 @@ def map_account_tax_type(cr):
     openupgrade.map_values(
         cr,
         openupgrade.get_legacy_name('type'), 'type',
-        [('code', 'fixed')],
+        [('code', 'group')],
         table='account_tax', write='sql')
 
 
@@ -44,7 +44,7 @@ def map_account_tax_template_type(cr):
     openupgrade.map_values(
         cr,
         openupgrade.get_legacy_name('type'), 'type',
-        [('code', 'fixed')],
+        [('code', 'group')],
         table='account_tax_template', write='sql')
 
 
