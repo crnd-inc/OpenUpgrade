@@ -3,6 +3,7 @@
 # © 2016 Eficent Business and IT Consulting Services S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 import operator
+from openerp import models
 from openerp import api, SUPERUSER_ID
 from openupgradelib import openupgrade
 from openerp.modules.registry import RegistryManager
@@ -292,6 +293,44 @@ def account_internal_type(cr):
             })
 
 
+def account_partial_reconcile(env):
+    # disable all workflow steps
+    set_workflow_org = models.BaseModel.step_workflow
+    models.BaseModel.step_workflow = lambda *args, **kwargs: None
+    cr = env.cr
+    move_line_ids = {}
+    cr.execute("SELECT reconcile_id, id FROM account_move_line WHERE "
+               "reconcile_id IS NOT null")
+    for rec_id, move_line_id in cr.fetchall():
+        if rec_id not in move_line_ids.keys():
+            move_line_ids[rec_id] = [move_line_id]
+        else:
+            move_line_ids[rec_id] += [move_line_id]
+    move_lines_1 = env['account.move.line']
+    for rec_id in move_line_ids.keys():
+        move_lines_1 = env['account.move.line'].browse(
+            [i for i in move_line_ids[rec_id]])
+        move_lines_1.auto_reconcile_lines()
+    move_line_ids = {}
+    cr.execute("SELECT reconcile_partial_id, id FROM account_move_line WHERE "
+               "reconcile_partial_id IS NOT null")
+    for rec_id, move_line_id in cr.fetchall():
+        if rec_id not in move_line_ids.keys():
+            move_line_ids[rec_id] = [move_line_id]
+        else:
+            move_line_ids[rec_id] += [move_line_id]
+    move_lines_2 = env['account.move.line']
+    for rec_id in move_line_ids.keys():
+        move_lines_2 = env['account.move.line'].browse(
+            [i for i in move_line_ids[rec_id]])
+        move_lines_2.auto_reconcile_lines()
+    for field in ['amount_residual', 'amount_residual_currency', 'reconciled']:
+        env.add_todo(env['account.move.line']._fields[field],
+                     move_lines_1 + move_lines_2)
+    env['account.move.line'].recompute()
+    models.BaseModel.step_workflow = set_workflow_org
+
+
 def map_account_tax_type(cr):
     if not openupgrade.logged_query(cr, """
         select id FROM account_tax where {name_v8} = 'code'
@@ -316,17 +355,17 @@ def map_account_tax_template_type(cr):
         table='account_tax_template', write='sql')
 
 
-@openupgrade.migrate()
-def migrate(cr, version):
+@openupgrade.migrate(use_env=True)
+def migrate(env, version):
+    cr = env.cr
     map_bank_state(cr)
     map_type_tax_use(cr)
     map_type_tax_use_template(cr)
     map_journal_state(cr)
-    account_templates(cr)
+    account_templates(env)
     parent_id_to_m2m(cr)
     cashbox(cr)
     account_properties(cr)
-
     # If the close_method is 'none', then set to 'False', otherwise set to
     # 'True'
     cr.execute("""
@@ -393,8 +432,9 @@ def migrate(cr, version):
         openupgrade.get_legacy_name('journal_entry_id'),
     )
 
-    parent_id_to_tag(cr, 'account.tax')
-    parent_id_to_tag(cr, 'account.account', recursive=True)
-    account_internal_type(cr)
+    parent_id_to_tag(env, 'account.tax')
+    parent_id_to_tag(env, 'account.account', recursive=True)
+    account_internal_type(env)
+    account_partial_reconcile(env)
     map_account_tax_type(cr)
     map_account_tax_template_type(cr)
