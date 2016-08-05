@@ -32,6 +32,27 @@ def map_type_tax_use_template(cr):
         table='account_tax_template', write='sql')
 
 
+def map_account_tax_type(cr):
+    cr.execute("select id FROM account_tax where type = 'code'")
+    if not cr.fetchone():
+        return
+    openupgrade.map_values(
+        cr,
+        openupgrade.get_legacy_name('type'), 'type',
+        [('code', 'code')],
+        table='account_tax', write='sql')
+
+
+def map_account_tax_template_type(cr):
+    if not cr.fetchone():
+        return
+    openupgrade.map_values(
+        cr,
+        openupgrade.get_legacy_name('type'), 'type',
+        [('code', 'code')],
+        table='account_tax_template', write='sql')
+
+
 def map_journal_state(cr):
     openupgrade.map_values(
         cr,
@@ -372,3 +393,5 @@ def migrate(cr, version):
     parent_id_to_tag(cr, 'account.tax')
     parent_id_to_tag(cr, 'account.account', recursive=True)
     account_internal_type(cr)
+    map_account_tax_type(cr)
+    map_account_tax_template_type(cr)
