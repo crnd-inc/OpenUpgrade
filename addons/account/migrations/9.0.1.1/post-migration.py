@@ -32,27 +32,6 @@ def map_type_tax_use_template(cr):
         table='account_tax_template', write='sql')
 
 
-def map_account_tax_type(cr):
-    cr.execute("select id FROM account_tax where type = 'code'")
-    if not cr.fetchone():
-        return
-    openupgrade.map_values(
-        cr,
-        openupgrade.get_legacy_name('type'), 'type',
-        [('code', 'code')],
-        table='account_tax', write='sql')
-
-
-def map_account_tax_template_type(cr):
-    if not cr.fetchone():
-        return
-    openupgrade.map_values(
-        cr,
-        openupgrade.get_legacy_name('type'), 'type',
-        [('code', 'code')],
-        table='account_tax_template', write='sql')
-
-
 def map_journal_state(cr):
     openupgrade.map_values(
         cr,
@@ -311,6 +290,30 @@ def account_internal_type(cr):
             env['account.account'].browse(ids).write({
                 'user_type_id': account_type.copy(default=default).id,
             })
+
+
+def map_account_tax_type(cr):
+    if not openupgrade.logged_query(cr, """
+        select id FROM account_tax where {name_v8} = 'code'
+    """.format(name_v8=openupgrade.get_legacy_name('type'))):
+        return
+    openupgrade.map_values(
+        cr,
+        openupgrade.get_legacy_name('type'), 'amount_type',
+        [('code', 'code')],
+        table='account_tax', write='sql')
+
+
+def map_account_tax_template_type(cr):
+    if not openupgrade.logged_query(cr, """
+        select id FROM account_tax where {name_v8} = 'code'
+    """.format(name_v8=openupgrade.get_legacy_name('type'))):
+        return
+    openupgrade.map_values(
+        cr,
+        openupgrade.get_legacy_name('type'), 'amount_type',
+        [('code', 'code')],
+        table='account_tax_template', write='sql')
 
 
 @openupgrade.migrate()
