@@ -108,6 +108,6 @@ def migrate(cr, version):
     openupgrade.rename_columns(cr, column_renames)
     openupgrade.copy_columns(cr, column_copies)
     migrate_properties(cr)
+    install_account_tax_python(cr)
     map_account_tax_type(cr)
     map_account_tax_template_type(cr)
-    install_account_tax_python(cr)
