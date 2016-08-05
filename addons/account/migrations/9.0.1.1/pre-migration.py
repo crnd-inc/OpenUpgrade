@@ -81,6 +81,22 @@ def install_account_tax_python(cr):
         "and exists (select id FROM account_tax where type = 'code')")
 
 
+def map_account_tax_type(cr):
+    openupgrade.map_values(
+        cr,
+        openupgrade.get_legacy_name('type'), 'amount_type',
+        [('code', 'group')],
+        table='account_tax', write='sql')
+
+
+def map_account_tax_template_type(cr):
+    openupgrade.map_values(
+        cr,
+        openupgrade.get_legacy_name('type'), 'amount_type',
+        [('code', 'group')],
+        table='account_tax_template', write='sql')
+
+
 @openupgrade.migrate()
 def migrate(cr, version):
     # 9.0 introduces a constraint enforcing this
@@ -92,4 +108,6 @@ def migrate(cr, version):
     openupgrade.rename_columns(cr, column_renames)
     openupgrade.copy_columns(cr, column_copies)
     migrate_properties(cr)
+    map_account_tax_type(cr)
+    map_account_tax_template_type(cr)
     install_account_tax_python(cr)

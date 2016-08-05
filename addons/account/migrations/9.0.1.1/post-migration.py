@@ -32,22 +32,6 @@ def map_type_tax_use_template(cr):
         table='account_tax_template', write='sql')
 
 
-def map_account_tax_type(cr):
-    openupgrade.map_values(
-        cr,
-        openupgrade.get_legacy_name('type'), 'amount_type',
-        [('code', 'group')],
-        table='account_tax', write='sql')
-
-
-def map_account_tax_template_type(cr):
-    openupgrade.map_values(
-        cr,
-        openupgrade.get_legacy_name('type'), 'amount_type',
-        [('code', 'group')],
-        table='account_tax_template', write='sql')
-
-
 def map_journal_state(cr):
     openupgrade.map_values(
         cr,
@@ -313,8 +297,6 @@ def migrate(cr, version):
     map_bank_state(cr)
     map_type_tax_use(cr)
     map_type_tax_use_template(cr)
-    map_account_tax_type(cr)
-    map_account_tax_template_type(cr)
     map_journal_state(cr)
     account_templates(cr)
     parent_id_to_m2m(cr)
