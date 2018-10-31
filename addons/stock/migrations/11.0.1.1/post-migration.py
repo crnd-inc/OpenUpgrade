@@ -129,10 +129,7 @@ def create_stock_move_line(env):
       "Operations" tab. The only drawback is that if you want to use the
       detailed operation mode, you will have to enter quantity manually.
     """
-    openupgrade.logged_query(
-        env.cr, """
-        INSERT INTO stock_move_line (
-            create_date,
+    insert_into = """create_date,
             create_uid,
             date,
             location_dest_id,
@@ -153,10 +150,8 @@ def create_stock_move_line(env):
             state,
             result_package_id,
             write_date,
-            write_uid
-        )
-        SELECT
-            MIN(spo.create_date),
+            write_uid"""
+    select = """MIN(spo.create_date),
             MIN(spo.create_uid),
             MIN(spo.date),
             MIN(spo.location_dest_id),
@@ -167,7 +162,7 @@ def create_stock_move_line(env):
             SUM(smol.qty),
             spo.owner_id,
             spo.package_id,
-            MIN(spo.picking_id),
+            spo.picking_id,
             spo.product_id,
             SUM(smol.qty),
             MIN(spo.product_uom_id),
@@ -177,18 +172,28 @@ def create_stock_move_line(env):
             'done',
             spo.result_package_id,
             MIN(spo.write_date),
-            MIN(spo.write_uid)
-        FROM stock_pack_operation spo
+            MIN(spo.write_uid)"""
+    from_ = """stock_pack_operation spo
             INNER JOIN stock_move_operation_link smol
                 ON smol.operation_id = spo.id
             INNER JOIN stock_move sm ON sm.id = smol.move_id
             INNER JOIN product_product pp ON spo.product_id = pp.id
             LEFT JOIN stock_picking sp ON sp.id = spo.picking_id
             LEFT JOIN stock_quant sq ON sq.id = smol.reserved_quant_id
-            LEFT JOIN stock_production_lot spl ON spl.id = sq.lot_id
+            LEFT JOIN stock_production_lot spl ON spl.id = sq.lot_id"""
+    openupgrade.logged_query(
+        env.cr, """
+        INSERT INTO stock_move_line (%(insert_into)s
+        )
+        SELECT %(select)s
+        FROM %(from)s
         WHERE sm.state = 'done'
         GROUP BY sq.lot_id, spo.product_id, spo.owner_id, spo.package_id,
-            spo.result_package_id""",
+            spo.result_package_id, spo.picking_id""" % {
+            'insert_into': insert_into,
+            'select': select,
+            'from': from_,
+        },
     )
 
 
@@ -197,10 +202,7 @@ def create_stock_move_line_reserved(env):
     """This method creates stock.move.line got from old stock.quant
     reservation_id field for recreating partially available moves.
     """
-    openupgrade.logged_query(
-        env.cr, """
-        INSERT INTO stock_move_line (
-            create_date,
+    insert_into = """create_date,
             create_uid,
             date,
             location_dest_id,
@@ -220,12 +222,10 @@ def create_stock_move_line_reserved(env):
             reference,
             state,
             write_date,
-            write_uid
-        )
-        SELECT
-            current_timestamp,
+            write_uid"""
+    select = """current_timestamp,
             MIN(sq.write_uid),
-            sm.date,
+            sm.date::date,
             sm.location_dest_id,
             sm.location_id,
             sq.lot_id,
@@ -243,13 +243,23 @@ def create_stock_move_line_reserved(env):
             MIN(COALESCE(sp.name, sm.name)),
             sm.state,
             current_timestamp,
-            MIN(sq.write_uid)
-        FROM stock_quant sq
+            MIN(sq.write_uid)"""
+    from_ = """stock_quant sq
             INNER JOIN stock_move sm ON sm.id = sq.reservation_id
             LEFT JOIN stock_picking sp ON sp.id = sm.picking_id
-            LEFT JOIN stock_production_lot spl ON spl.id = sq.lot_id
+            LEFT JOIN stock_production_lot spl ON spl.id = sq.lot_id"""
+    openupgrade.logged_query(
+        env.cr, """
+        INSERT INTO stock_move_line (%(insert_into)s
+        )
+        SELECT %(select)s
+        FROM %(from)s
         GROUP BY sq.lot_id, sq.product_id, sq.owner_id, sq.package_id,
-            sm.id""",
+            sm.id""" % {
+            'insert_into': insert_into,
+            'select': select,
+            'from': from_,
+        },
     )
 
 
@@ -275,6 +285,26 @@ def recompute_stock_move_line_qty_different_uom(env):
         )
 
 
+def fill_stock_move_line_consume_rel(cr):
+    openupgrade.logged_query(
+        cr,
+        """
+        INSERT INTO stock_move_line_consume_rel (consume_line_id,
+            produce_line_id)
+        SELECT DISTINCT sml1.id, sml2.id
+        FROM stock_quant_consume_rel sqcr
+        INNER JOIN stock_quant_move_rel sqmr1
+            ON sqmr1.quant_id = sqcr.consume_quant_id
+        INNER JOIN stock_quant_move_rel sqmr2
+            ON sqmr2.quant_id = sqcr.produce_quant_id
+        INNER JOIN stock_move_line sml1
+            ON sml1.move_id = sqmr1.move_id
+        INNER JOIN stock_move_line sml2
+            ON sml2.move_id = sqmr2.move_id
+        """
+    )
+
+
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
     compute_stock_move_reference(env)
@@ -291,3 +321,5 @@ def migrate(env, version):
     create_stock_move_line(env)
     create_stock_move_line_reserved(env)
     recompute_stock_move_line_qty_different_uom(env)
+    if openupgrade.table_exists(env.cr, 'stock_quant_consume_rel'):
+        fill_stock_move_line_consume_rel(env.cr)
