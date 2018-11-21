@@ -41,6 +41,10 @@ renamed_modules = {
     ),
     # OCA/web
     'web_advanced_search_x2x': 'web_advanced_search',
+    # Eficent/ao-odoo:
+    'ao_account_check_writing': 'ao_account_check_printing',
+    'account_anglo_saxon_no_cogs_deferral':
+        'account_invoice_anglo_saxon_no_cogs_deferral',
 }
 
 merged_modules = {
@@ -90,6 +94,8 @@ merged_modules = {
     'web_widget_domain_v11': 'web',
     # OCA/website
     'website_seo_redirection': 'website',
+    # Eficent/ao-odoo:
+    'hr_timesheet_sheet_restrict_project': 'hr_timesheet_sheet',
 }
 
 renamed_models = {
