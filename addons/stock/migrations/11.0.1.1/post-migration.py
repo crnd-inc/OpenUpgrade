@@ -167,7 +167,7 @@ def create_stock_move_line(env):
             SUM(smol.qty),
             spo.owner_id,
             spo.package_id,
-            MIN(spo.picking_id),
+            spo.picking_id,
             spo.product_id,
             SUM(smol.qty),
             MIN(spo.product_uom_id),
@@ -188,7 +188,7 @@ def create_stock_move_line(env):
             LEFT JOIN stock_production_lot spl ON spl.id = sq.lot_id
         WHERE sm.state = 'done'
         GROUP BY sq.lot_id, spo.product_id, spo.owner_id, spo.package_id,
-            spo.result_package_id""",
+            spo.result_package_id, spo.picking_id""",
     )
 
 
@@ -225,7 +225,7 @@ def create_stock_move_line_reserved(env):
         SELECT
             current_timestamp,
             MIN(sq.write_uid),
-            sm.date,
+            sm.date::date,
             sm.location_dest_id,
             sm.location_id,
             sq.lot_id,
@@ -250,6 +250,62 @@ def create_stock_move_line_reserved(env):
             LEFT JOIN stock_production_lot spl ON spl.id = sq.lot_id
         GROUP BY sq.lot_id, sq.product_id, sq.owner_id, sq.package_id,
             sm.id""",
+    )
+
+
+@openupgrade.logging()
+def create_stock_move_line_from_inventory_moves(env):
+    """This method creates stock.move.line got from inventory moves.
+    """
+    openupgrade.logged_query(
+        env.cr, """
+        INSERT INTO stock_move_line (
+            create_date,
+            create_uid,
+            date,
+            location_dest_id,
+            location_id,
+            lot_id,
+            lot_name,
+            move_id,
+            ordered_qty,
+            owner_id,
+            picking_id,
+            product_id,
+            product_qty,
+            product_uom_id,
+            product_uom_qty,
+            qty_done,
+            reference,
+            state,
+            write_date,
+            write_uid
+        )
+        SELECT
+            current_timestamp,
+            sm.write_uid,
+            sm.date::date,
+            sm.location_dest_id,
+            sm.location_id,
+            si.lot_id,
+            spl.name,
+            sm.id,
+            0,
+            sm.restrict_partner_id,
+            sm.picking_id,
+            sm.product_id,
+            0,
+            sm.product_uom,
+            0,
+            sm.product_uom_qty,
+            sm.name,
+            sm.state,
+            current_timestamp,
+            sm.write_uid
+        FROM stock_move sm
+        INNER JOIN stock_inventory si ON sm.inventory_id = si.id
+        LEFT JOIN stock_production_lot spl ON si.lot_id = spl.id
+        """,
     )
 
 
@@ -290,4 +346,5 @@ def migrate(env, version):
     set_partially_available_state(env)
     create_stock_move_line(env)
     create_stock_move_line_reserved(env)
+    create_stock_move_line_from_inventory_moves(env)
     recompute_stock_move_line_qty_different_uom(env)
