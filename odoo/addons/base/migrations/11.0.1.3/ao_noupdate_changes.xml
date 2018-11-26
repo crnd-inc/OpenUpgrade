@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<odoo>
+    <!--https://github.com/OCA/stock-logistics-warehouse/blame/11.0/stock_orderpoint_manual_procurement/security/stock_orderpoint_manual_procurement_security.xml#L7-->
+    <record id="stock_orderpoint_manual_procurement.group_change_orderpoint_procure_qty" model="res.groups">
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+</odoo>
