@@ -26,6 +26,74 @@ def merge_quants(env):
         )
 
 
+def merge_stock_production_lots(env):
+
+    def list_duplicates(cr, table, columns):
+        """
+        Look for rows in `table` that has duplicates for given `columns`
+        :param cr: db cursor
+        :param table: table name
+        :param columns: list of columns to look for coincidences
+        :return: list of dict entries.
+        """
+        items = ', '.join(columns)
+        query = ('SELECT %s FROM %s GROUP BY (%s) having count(*) > 1' %
+                 (items, table, items))
+        cr.execute(query)
+        # TODO Change fetchall() for dictfetchall() and simplify downstream
+        res = cr.fetchall()
+        if len(res) == 0:
+            return False
+        recs = []
+        for i in res:
+            rec = {}
+            for j in range(len(columns)):
+                rec[columns[j]] = i[j]
+            recs.append(rec)
+        return recs
+
+    def find_duplicates(cr, table, duplicated_keys):
+        """
+        Look for duplicates in `table` using filtered columns `duplicate`
+        :param cr: db cursor
+        :param table: table name
+        :param duplicate: dict of duplicated to be found.
+        :return: list of ids first one will merge into others.
+        """
+        conds = []
+        for key, value in duplicated_keys.items():
+            conds.append("%s = '%s'" % (key, value))
+        cond = ' AND '.join(conds)
+        query = ('SELECT id FROM %s WHERE %s ORDER BY id ASC' % (table, cond))
+        cr.execute(query)
+        openupgrade.logged_query(cr, query)
+        res = cr.fetchall()
+        if len(res) <= 1:
+            return False
+        return res
+
+    _TABLE = 'stock_production_lot'
+
+    _COLUMNS = ['name', 'product_id']
+
+    _MERGE_OPS = {
+        'ref': 'ignore',
+        'name': 'ignore',
+    }
+
+    duplicates = list_duplicates(env.cr, _TABLE, _COLUMNS)
+    if duplicates:
+        for duplicate in duplicates:
+            stock_production_lot = find_duplicates(
+                env.cr, _TABLE, duplicated_keys=duplicate)
+            if stock_production_lot:
+                openupgrade_merge_records.merge_records(
+                    env, 'stock.production.lot', stock_production_lot[1:],
+                    stock_production_lot[0], _MERGE_OPS, method='orm'
+                )
+
+
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
     merge_quants(env)
+    merge_stock_production_lots(env)
