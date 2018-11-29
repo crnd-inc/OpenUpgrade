@@ -163,7 +163,7 @@ def create_stock_move_line(env):
             SUM(smol.qty),
             spo.owner_id,
             spo.package_id,
-            MIN(spo.picking_id),
+            spo.picking_id,
             spo.product_id,
             SUM(smol.qty),
             MIN(spo.product_uom_id),
@@ -280,7 +280,7 @@ def create_stock_move_line_reserved(env):
         SELECT
             current_timestamp,
             MIN(sq.write_uid),
-            sm.date,
+            sm.date::date,
             sm.location_dest_id,
             sm.location_id,
             sq.lot_id,
@@ -330,6 +330,26 @@ def recompute_stock_move_line_qty_different_uom(env):
         )
 
 
+def fill_stock_move_line_consume_rel(cr):
+    openupgrade.logged_query(
+        cr,
+        """
+        INSERT INTO stock_move_line_consume_rel (consume_line_id,
+            produce_line_id)
+        SELECT DISTINCT sml1.id, sml2.id
+        FROM stock_quant_consume_rel sqcr
+        INNER JOIN stock_quant_move_rel sqmr1
+            ON sqmr1.quant_id = sqcr.consume_quant_id
+        INNER JOIN stock_quant_move_rel sqmr2
+            ON sqmr2.quant_id = sqcr.produce_quant_id
+        INNER JOIN stock_move_line sml1
+            ON sml1.move_id = sqmr1.move_id
+        INNER JOIN stock_move_line sml2
+            ON sml2.move_id = sqmr2.move_id
+        """
+    )
+
+
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
     compute_stock_move_reference(env)
@@ -347,3 +367,5 @@ def migrate(env, version):
     create_stock_move_line_incoming(env)
     create_stock_move_line_reserved(env)
     recompute_stock_move_line_qty_different_uom(env)
+    if openupgrade.table_exists(env.cr, 'stock_quant_consume_rel'):
+        fill_stock_move_line_consume_rel(env.cr)
