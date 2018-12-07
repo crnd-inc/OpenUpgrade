@@ -70,7 +70,13 @@ def merge_stock_production_lots(env):
         res = cr.fetchall()
         if len(res) <= 1:
             return False
-        return res
+        record = {'to': []}
+        for i in res:
+            if 'from' not in record:
+                record['from'] = i[0]
+            else:
+                record['to'].append(i[0])
+        return record
 
     _TABLE = 'stock_production_lot'
 
@@ -88,8 +94,8 @@ def merge_stock_production_lots(env):
                 env.cr, _TABLE, duplicated_keys=duplicate)
             if stock_production_lot:
                 openupgrade_merge_records.merge_records(
-                    env, 'stock.production.lot', stock_production_lot[1:],
-                    stock_production_lot[0], _MERGE_OPS, method='orm'
+                    env, 'stock.production.lot', stock_production_lot['to'],
+                    stock_production_lot['from'], _MERGE_OPS, method='orm'
                 )
 
 
