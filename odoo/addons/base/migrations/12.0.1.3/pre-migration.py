@@ -136,7 +136,8 @@ def migrate(env, version):
     env.cr.execute(
         """ INSERT INTO ir_model_data
         (module, name, model, res_id, noupdate)
-        VALUES('base', 'user_admin', 'res.users', 1, true)""")
+        VALUES('base', 'user_admin', 'res.users', 1, true)
+        ON CONFLICT DO NOTHING""")
     env.cr.execute(
         """ INSERT INTO ir_model_data
         (module, name, model, res_id, noupdate)
